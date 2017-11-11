@@ -1,0 +1,5 @@
+rootProject.name = 'gradle-maven-transform-all'
+
+includeBuild 'plugin'
+includeBuild 'example/maven-transform'
+includeBuild 'example/smallJavaMultiProject'

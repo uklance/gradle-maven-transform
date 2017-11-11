@@ -1,0 +1,33 @@
+plugins {
+	id 'groovy'
+	id 'com.gradle.plugin-publish' version '0.9.7'
+	id 'idea'
+}
+
+group = 'com.lazan'
+version = file('../version.txt').text.trim()
+
+dependencies {
+	compile localGroovy()
+	compile gradleApi()
+}
+
+pluginBundle {
+	website = 'https://github.com/uklance/gradle-maven-transform'
+	vcsUrl = 'https://github.com/uklance/gradle-maven-transform.git'
+	description = 'Dynamically transform a Maven effective pom into Gradle scripts and more'
+	tags = ['maven', 'transform', 'generate', 'freemarker']
+
+	plugins {
+		plugin {
+			id = 'com.lazan.maven-transform'
+			displayName = 'Gradle Maven Transform'
+		}
+	}
+}
+
+idea {
+	module {
+		name = 'gmt-plugin'
+	}
+}

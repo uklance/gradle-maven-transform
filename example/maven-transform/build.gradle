@@ -1,0 +1,26 @@
+buildscript {
+	def pluginVersion = file('../../version.txt').text.trim()
+	dependencies {
+		classpath "com.lazan:gradle-maven-transform:$pluginVersion"
+	}
+}
+
+apply plugin: 'com.lazan.maven-transform'
+
+mavenTransform {
+	rootPom '../smallJavaMultiProject/pom.xml'
+	
+	transformManyToOne {
+		outputFile "$buildDir/mavenTransform/settings.gradle"
+		freemarkerTemplate 'settings-projects.ftl'
+		context 'modelCount', { Collection models ->
+			models.size()
+		}
+	}
+	
+	transformOneToOne {
+		outputFile { mavenProject ->
+			"$buildDir/mavenTransform/${artifactId}.gradle"
+		}
+	}
+}
