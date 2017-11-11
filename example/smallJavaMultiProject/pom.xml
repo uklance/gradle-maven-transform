@@ -1,0 +1,22 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.gradle.test.performance</groupId>
+    <artifactId>project</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0</version>
+
+    <modules>
+        <module>project0</module>
+        <module>project1</module>
+        <module>project2</module>
+        <module>project3</module>
+        <module>project4</module>
+        <module>project5</module>
+        <module>project6</module>
+        <module>project7</module>
+        <module>project8</module>
+        <module>project9</module>
+    </modules>
+
+</project>
