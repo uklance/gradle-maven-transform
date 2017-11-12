@@ -15,16 +15,16 @@ mavenTransform {
 	outputDirectory "$buildDir/mavenTransform"
 
 	transformManyToOne {
-		outputPath "$buildDir/mavenTransform/settings.gradle"
+		outputPath "settings.gradle"
 		freemarkerTemplate 'settings-projects.ftl'
 		context 'modelCount', { Collection models ->
 			models.size()
 		}
+		classpath files('src/main/resources')
 	}
 
 	transformOneToOne {
-		outputPath { mavenModel ->
-			"$buildDir/mavenTransform/${mavenModel.artifactId}.gradle"
-		}
+		outputPath { mavenModel -> "${mavenModel.artifactId}.gradle" }
+		classpath files('src/main/resources')
 	}
 }	
