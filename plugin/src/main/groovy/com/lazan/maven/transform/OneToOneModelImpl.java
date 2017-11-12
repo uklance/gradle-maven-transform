@@ -2,7 +2,7 @@ package com.lazan.maven.transform;
 
 import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
-import org.gradle.internal.impldep.org.apache.maven.model.Model;
+import org.apache.maven.model.Model;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -11,13 +11,12 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 
 public class OneToOneModelImpl implements OneToOneModel, ClassLoaderSource {
     private final Project project;
     private FileCollection classpath;
-    private Function<Model, Object> outputFileFunction;
+    private Function<Model, String> outputPathFunction;
     private List<Template> templates = new ArrayList<>();
     private Map<String, Function<Model, Object>> contextFunctions;
 
@@ -31,8 +30,8 @@ public class OneToOneModelImpl implements OneToOneModel, ClassLoaderSource {
     }
 
     @Override
-    public void outputFile(Function<Model, Object> outputFileFunction) {
-        this.outputFileFunction = outputFileFunction;
+    public void outputPath(Function<Model, String> outputPathFunction) {
+        this.outputPathFunction = outputPathFunction;
     }
 
     @Override
@@ -63,8 +62,8 @@ public class OneToOneModelImpl implements OneToOneModel, ClassLoaderSource {
         return new URLClassLoader(urls, null);
     }
 
-    public Function<Model, Object> getOutputFileFunction() {
-        return outputFileFunction;
+    public Function<Model, String> getOutputPathFunction() {
+        return outputPathFunction;
     }
 
     public List<Template> getTemplates() {

@@ -2,7 +2,6 @@ buildscript {
 	repositories {
 		mavenCentral()
 	}
-	//apply from: '../../repositories.gradle'
 	def pluginVersion = file('../../version.txt').text.trim()
 	dependencies {
 		classpath "com.lazan:gradle-maven-transform:$pluginVersion"
@@ -13,9 +12,10 @@ apply plugin: 'com.lazan.maven-transform'
 
 mavenTransform {
 	rootPom '../smallJavaMultiProject/pom.xml'
+	outputDirectory "$buildDir/mavenTransform"
 
 	transformManyToOne {
-		outputFile "$buildDir/mavenTransform/settings.gradle"
+		outputPath "$buildDir/mavenTransform/settings.gradle"
 		freemarkerTemplate 'settings-projects.ftl'
 		context 'modelCount', { Collection models ->
 			models.size()
@@ -23,8 +23,8 @@ mavenTransform {
 	}
 
 	transformOneToOne {
-		outputFile { mavenProject ->
-			"$buildDir/mavenTransform/${artifactId}.gradle"
+		outputPath { mavenModel ->
+			"$buildDir/mavenTransform/${mavenModel.artifactId}.gradle"
 		}
 	}
 }	

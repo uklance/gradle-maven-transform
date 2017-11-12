@@ -1,9 +1,9 @@
-package com.lazan.maven.transform;
+package com.lazan.maven.transform
 
-import org.gradle.api.Action;
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
-import org.gradle.api.tasks.TaskContainer;
+import org.gradle.api.Plugin
+import org.gradle.api.Project
+import org.gradle.api.Task
+import org.gradle.api.tasks.TaskContainer
 
 /**
  * Created by Lance on 11/11/2017.
@@ -11,12 +11,15 @@ import org.gradle.api.tasks.TaskContainer;
 class MavenTransformPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
-        TaskContainer tasks = project.getTasks();
-        EffectivePom effectivePom = tasks.create("effectivePom", EffectivePom.class);
-        EffectivePomTransform pomTransform = tasks.create("pomTransform", EffectivePomTransform.class);
-        pomTransform.dependsOn(effectivePom);
+        project.apply(plugin: 'base')
+        TaskContainer tasks = project.getTasks()
+        EffectivePom effectivePom = tasks.create("effectivePom", EffectivePom.class)
+        EffectivePomTransform pomTransform = tasks.create("pomTransform", EffectivePomTransform.class)
+        pomTransform.dependsOn(effectivePom)
+        project.extensions.create("mavenTransform", MavenTransformModelImpl.class, project, effectivePom, pomTransform)
 
-        MavenTransformModel model = new MavenTransformModelImpl(project, effectivePom, pomTransform);
-        project.getExtensions().add("mavenTransform", model);
+        Task buildTask = tasks.findByName('build')
+        buildTask.dependsOn effectivePom
+        buildTask.dependsOn pomTransform
     }
 }

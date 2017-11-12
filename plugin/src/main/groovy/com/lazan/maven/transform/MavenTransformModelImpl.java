@@ -1,6 +1,6 @@
 package com.lazan.maven.transform;
 
-import org.gradle.api.Action;
+import groovy.lang.Closure;
 import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
 
@@ -32,13 +32,13 @@ public class MavenTransformModelImpl implements MavenTransformModel {
     }
 
     @Override
-    public void transformManyToOne(Action<? super ManyToOneModel> action) {
-        pomTransform.manyToOne(action);
+    public void transformManyToOne(Closure configureClosure) {
+        pomTransform.manyToOne(configureClosure);
     }
 
     @Override
-    public void transformOneToOne(Action<? super OneToOneModel> action) {
-        pomTransform.oneToOne(action);
+    public void transformOneToOne(Closure configureClosure) {
+        pomTransform.oneToOne(configureClosure);
     }
 
     public Project getProject() {

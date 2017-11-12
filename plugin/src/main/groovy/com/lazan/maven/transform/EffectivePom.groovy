@@ -39,13 +39,13 @@ class EffectivePom  extends DefaultTask {
 
     @OutputFile
     File getOutputFile() {
-        return outputFile ?: project.file("$buildDir/effectivePom/effective-pom.xml");
+        return outputFile ?: project.file("${project.buildDir}/effectivePom/effective-pom.xml");
     }
 
     @TaskAction
     void generateEffectivePom() {
         project.exec {
-            args "cmd /c mvn -f $rootPom -Doutput=$outputFile".split(' ')
+            commandLine = "cmd /c mvn -f $rootPom help:effective-pom -Doutput=$outputFile".split(' ')
         }
     }
 }

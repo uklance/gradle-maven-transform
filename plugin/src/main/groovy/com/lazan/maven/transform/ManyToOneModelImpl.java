@@ -2,7 +2,7 @@ package com.lazan.maven.transform;
 
 import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
-import org.gradle.internal.impldep.org.apache.maven.model.Model;
+import org.apache.maven.model.Model;
 
 import java.io.File;
 import java.net.MalformedURLException;

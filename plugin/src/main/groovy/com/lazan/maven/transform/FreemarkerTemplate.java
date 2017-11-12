@@ -19,6 +19,6 @@ public class FreemarkerTemplate implements Template {
 
     @Override
     public void transform(Map<String, Object> context, OutputStream out) throws IOException {
-
+        throw new RuntimeException("Not supported");
     }
 }

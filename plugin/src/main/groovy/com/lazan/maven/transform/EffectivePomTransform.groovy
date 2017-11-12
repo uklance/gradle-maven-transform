@@ -1,14 +1,13 @@
 package com.lazan.maven.transform
 
 import groovy.xml.XmlUtil
-import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-import org.gradle.internal.impldep.org.apache.maven.model.Model
-import org.gradle.internal.impldep.org.apache.maven.model.io.xpp3.MavenXpp3Reader
-
+import org.gradle.util.ConfigureUtil
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import java.util.function.Function
 
 class EffectivePomTransform extends DefaultTask {
@@ -35,15 +34,15 @@ class EffectivePomTransform extends DefaultTask {
         return outputDirectory
     }
 
-    void oneToOne(Action<? super OneToOneModel> action) {
+    void oneToOne(Closure configureClosure) {
         OneToOneModelImpl model = new OneToOneModelImpl(project)
-        action.execute(model)
+        ConfigureUtil.configure(configureClosure, model)
         oneToOneModels.add(model)
     }
 
-    void manyToOne(Action<? super ManyToOneModel> action) {
+    void manyToOne(Closure configureClosure) {
         ManyToOneModelImpl model = new ManyToOneModelImpl(project)
-        action.execute(model)
+        ConfigureUtil.configure(configureClosure, model)
         manyToOneModels.add(model)
     }
 
@@ -51,21 +50,12 @@ class EffectivePomTransform extends DefaultTask {
     void transformEffectivePom() {
         List<Model> mavenModels = []
         new XmlSlurper().parse(effectivePom).projects.project.each { element ->
-            String groupId = element.groupId.text()
-            String artifactId = element.artifactId.text()
-            String version = element.version.text()
-            String path = "${groupId}-${artifactId}-${version}.xml"
-            File file = new File(temporaryDir, path)
-
-            file.withWriter { writer ->
-                writer << XmlUtil.serialize(element)
-            }
-
+            String projectXml = XmlUtil.serialize(element)
             MavenXpp3Reader reader = MavenXpp3Reader()
-            Model mavenModel = reader.read(new FileReader(file))
+            Model mavenModel = reader.read(new StringReader(projectXml))
             mavenModels << mavenModel
         }
-        
+
         for (ManyToOneModelImpl manyToOneModel : manyToOneModels) {
             File outFile = manyToOneModel.outputFile
             outFile.withOutputStream { OutputStream out ->

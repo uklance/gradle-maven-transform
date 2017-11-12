@@ -1,10 +1,11 @@
 package com.lazan.maven.transform;
 
+import groovy.lang.Closure;
 import org.gradle.api.Action;
 
 public interface MavenTransformModel {
     void rootPom(Object rootPom);
-    void transformManyToOne(Action<? super ManyToOneModel> action);
-    void transformOneToOne(Action<? super OneToOneModel> action);
+    void transformManyToOne(Closure configureClosure);
+    void transformOneToOne(Closure configureClosure);
     void outputDirectory(Object outputDir);
 }

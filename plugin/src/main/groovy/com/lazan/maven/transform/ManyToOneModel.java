@@ -1,8 +1,7 @@
 package com.lazan.maven.transform;
 
 import org.gradle.api.file.FileCollection;
-import org.gradle.internal.impldep.org.apache.maven.model.Model;
-
+import org.apache.maven.model.Model;
 import java.util.Collection;
 import java.util.function.Function;
 
