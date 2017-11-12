@@ -8,6 +8,9 @@ env:
 
 before_install:
  - chmod +x gradlew
+ 
+install:
+- ./gradlew assemble --stacktrace
 
-after_success:
-- ./gradlew build --stacktrace
+script:
+- ./gradlew check --stacktrace
