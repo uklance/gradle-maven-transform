@@ -4,6 +4,7 @@ import groovy.xml.XmlUtil
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.impldep.org.apache.maven.model.Model
 import org.gradle.internal.impldep.org.apache.maven.model.io.xpp3.MavenXpp3Reader
@@ -14,14 +15,24 @@ class EffectivePomTransform extends DefaultTask {
     private File effectivePom
     private List<OneToOneModelImpl> oneToOneModels = []
     private List<ManyToOneModelImpl> manyToOneModels = []
+    private File outputDirectory
 
     void effectivePom(Object effectivePom) {
         this.effectivePom = project.file(effectivePom)
     }
 
+    void outputDirectory(Object outputDirectory) {
+        this.outputDirectory = project.file(outputDirectory)
+    }
+
     @InputFile
     File getEffectivePom() {
         return effectivePom
+    }
+
+    @OutputDirectory
+    File getOutputDirectory() {
+        return outputDirectory
     }
 
     void oneToOne(Action<? super OneToOneModel> action) {

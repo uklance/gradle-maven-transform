@@ -8,7 +8,7 @@ import java.util.function.Function;
 
 public interface ManyToOneModel {
     void classpath(FileCollection classpath);
-    void outputFile(Object outputFile);
+    void outputPath(String outputPath);
     void freemarkerTemplate(String templatePath);
     void template(Template template);
     void context(String contextKey, Function<Collection<Model>, Object> contextFunction);

@@ -1,9 +1,14 @@
 buildscript {
+	repositories {
+		mavenCentral()
+	}
+	//apply from: '../../repositories.gradle'
 	def pluginVersion = file('../../version.txt').text.trim()
 	dependencies {
 		classpath "com.lazan:gradle-maven-transform:$pluginVersion"
 	}
 }
+
 
 apply plugin: 'com.lazan.maven-transform'
 

@@ -1,6 +1,5 @@
 package com.lazan.maven.transform;
 
-import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
 import org.gradle.internal.impldep.org.apache.maven.model.Model;
 
@@ -9,15 +8,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-public class OneToOneModelImpl implements OneToOneModel, ClasspathSource {
-    private final Project project;
+public class OneToOneModelImpl implements OneToOneModel, ClassLoaderSource {
+    private final MavenTransformModelImpl mavenTransformModel;
     private FileCollection classpath;
     private Function<Model, Object> outputFileFunction;
     private List<Template> templates = new ArrayList<>();
     private Map<String, Function<Model, Object>> contextFunctions;
 
-    public OneToOneModelImpl(Project project) {
-        this.project = project;
+    public OneToOneModelImpl(MavenTransformModelImpl mavenTransformModel) {
+        this.mavenTransformModel = mavenTransformModel;
     }
 
     @Override
@@ -46,8 +45,8 @@ public class OneToOneModelImpl implements OneToOneModel, ClasspathSource {
     }
 
     @Override
-    public FileCollection getClasspath() {
-        return classpath;
+    public ClassLoader getClassLoader() {
+        return mavenTransformModel.getClassLoader(classpath);
     }
 
     public Function<Model, Object> getOutputFileFunction() {

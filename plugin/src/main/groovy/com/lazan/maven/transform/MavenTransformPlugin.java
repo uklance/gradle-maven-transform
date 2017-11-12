@@ -16,26 +16,9 @@ public class MavenTransformPlugin implements Plugin<Project> {
         EffectivePomTransform pomTransform = tasks.create("pomTransform", EffectivePomTransform.class);
         pomTransform.dependsOn(effectivePom);
 
-        MavenTransformModel model = createModel(project, effectivePom, pomTransform);
+        MavenTransformModel model = new MavenTransformModelImpl(project, effectivePom, pomTransform);
         project.getExtensions().add("mavenTransform", model);
     }
 
-    protected MavenTransformModel createModel(Project project, EffectivePom effectivePom, EffectivePomTransform pomTransform) {
-        return new MavenTransformModel() {
-            @Override
-            public void rootPom(Object rootPom) {
-                effectivePom.rootPom(rootPom);
-            }
 
-            @Override
-            public void transformManyToOne(Action<? super ManyToOneModel> action) {
-                pomTransform.manyToOne(action);
-            }
-
-            @Override
-            public void transformOneToOne(Action<? super OneToOneModel> action) {
-                pomTransform.oneToOne(action);
-            }
-        };
-    }
 }

@@ -6,4 +6,5 @@ public interface MavenTransformModel {
     void rootPom(Object rootPom);
     void transformManyToOne(Action<? super ManyToOneModel> action);
     void transformOneToOne(Action<? super OneToOneModel> action);
+    void outputDirectory(Object outputDir);
 }

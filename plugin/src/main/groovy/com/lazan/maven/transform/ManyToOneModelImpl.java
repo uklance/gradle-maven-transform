@@ -1,25 +1,23 @@
 package com.lazan.maven.transform;
 
-import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
 import org.gradle.internal.impldep.org.apache.maven.model.Model;
 
-import java.io.File;
 import java.util.*;
 import java.util.function.Function;
 
 /**
  * Created by Lance on 11/11/2017.
  */
-public class ManyToOneModelImpl implements ManyToOneModel, ClasspathSource {
-    private final Project project;
+public class ManyToOneModelImpl implements ManyToOneModel, ClassLoaderSource {
+    private final MavenTransformModelImpl mavenTransformModel;
     private FileCollection classpath;
-    private File outputFile;
+    private String outputPath;
     private List<Template> templates = new ArrayList<>();
     private Map<String, Function<Collection<Model>, Object>> contextFunctions = new LinkedHashMap<>();
 
-    public ManyToOneModelImpl(Project project) {
-        this.project = project;
+    public ManyToOneModelImpl(MavenTransformModelImpl mavenTransformModel) {
+        this.mavenTransformModel = mavenTransformModel;
     }
 
     @Override
@@ -28,8 +26,8 @@ public class ManyToOneModelImpl implements ManyToOneModel, ClasspathSource {
     }
 
     @Override
-    public void outputFile(Object outputFile) {
-        this.outputFile = project.file(outputFile);
+    public void outputPath(String outputPath) {
+        this.outputPath = outputPath;
     }
 
     @Override
@@ -39,21 +37,21 @@ public class ManyToOneModelImpl implements ManyToOneModel, ClasspathSource {
 
     @Override
     public void template(Template template) {
-
+        templates.add(template);
     }
 
     @Override
     public void context(String contextKey, Function<Collection<Model>, Object> contextFunction) {
-
+        contextFunctions.put(contextKey, contextFunction);
     }
 
     @Override
-    public FileCollection getClasspath() {
-        return classpath;
+    public ClassLoader getClassLoader() {
+        return mavenTransformModel.getClassLoader(classpath);
     }
 
-    public File getOutputFile() {
-        return outputFile;
+    public String getOutputPath() {
+        return outputPath;
     }
 
     public List<Template> getTemplates() {

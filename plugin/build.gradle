@@ -7,9 +7,12 @@ plugins {
 group = 'com.lazan'
 version = file('../version.txt').text.trim()
 
+apply from: '../repositories.gradle'
+
 dependencies {
 	compile localGroovy()
 	compile gradleApi()
+	compile 'org.freemarker:freemarker:2.3.14'
 }
 
 pluginBundle {
