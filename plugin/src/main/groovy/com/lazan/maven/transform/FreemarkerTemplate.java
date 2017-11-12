@@ -1,9 +1,12 @@
 package com.lazan.maven.transform;
 
-import org.gradle.api.file.FileCollection;
+import freemarker.cache.ClassTemplateLoader;
+import freemarker.template.Configuration;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.Map;
 
 /**
@@ -19,6 +22,16 @@ public class FreemarkerTemplate implements Template {
 
     @Override
     public void transform(Map<String, Object> context, OutputStream out) throws IOException {
-        throw new RuntimeException("Not supported");
+        ClassLoader classLoader = classLoaderSource.getClassLoader();
+        Configuration fmConfig = new Configuration(Configuration.VERSION_2_3_23);
+        fmConfig.setTemplateLoader(new ClassTemplateLoader(classLoader, ""));
+
+        freemarker.template.Template template = fmConfig.getTemplate(templatePath);
+        try (Writer writer = new OutputStreamWriter(out)) {
+            template.process(context, writer);
+            writer.flush();
+        } catch (Exception e) {
+            throw new RuntimeException("Error processing " + templatePath, e);
+        }
     }
 }

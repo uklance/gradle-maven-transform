@@ -12,7 +12,7 @@ apply from: '../repositories.gradle'
 dependencies {
 	compile localGroovy()
 	compile gradleApi()
-	compile 'org.freemarker:freemarker:2.3.14'
+	compile 'org.freemarker:freemarker:2.3.23'
 	compile 'org.apache.maven:maven-model:3.3.9'
 }
 

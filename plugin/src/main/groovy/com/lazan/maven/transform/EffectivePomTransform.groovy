@@ -57,9 +57,10 @@ class EffectivePomTransform extends DefaultTask {
         }
 
         for (ManyToOneModelImpl manyToOneModel : manyToOneModels) {
-            File outFile = manyToOneModel.outputFile
+            File outFile = new File(outputDirectory, manyToOneModel.outputPath)
+            outFile.parentFile.mkdirs()
             outFile.withOutputStream { OutputStream out ->
-                Map<String, Object> context = []
+                Map<String, Object> context = [:]
                 manyToOneModel.contextFunctions.each { String key, Function<Collection<Model>, Object> contextFunction ->
                     context[key] = contextFunction.apply(mavenModels)
                 }
@@ -70,7 +71,9 @@ class EffectivePomTransform extends DefaultTask {
         }
         for (OneToOneModelImpl oneToOneModel : oneToOneModels) {
             for (Model mavenModel : mavenModels) {
-                File outFile = oneToOneModel.outputFile
+                String outputPath = oneToOneModel.outputPathFunction.apply(mavenModel)
+                File outFile = new File(outputDirectory, outputPath)
+                outFile.parentFile.mkdirs()
                 outFile.withOutputStream { OutputStream out ->
                     Map<String, Object> context = []
                     oneToOneModel.contextFunctions.each { String key, Function<Model, Object> contextFunction ->

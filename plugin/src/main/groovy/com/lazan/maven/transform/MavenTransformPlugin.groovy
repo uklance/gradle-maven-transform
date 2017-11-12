@@ -16,6 +16,7 @@ class MavenTransformPlugin implements Plugin<Project> {
         EffectivePom effectivePom = tasks.create("effectivePom", EffectivePom.class)
         EffectivePomTransform pomTransform = tasks.create("pomTransform", EffectivePomTransform.class)
         pomTransform.dependsOn(effectivePom)
+        pomTransform.effectivePom { -> effectivePom.outputFile }
         project.extensions.create("mavenTransform", MavenTransformModelImpl.class, project, effectivePom, pomTransform)
 
         Task buildTask = tasks.findByName('build')
