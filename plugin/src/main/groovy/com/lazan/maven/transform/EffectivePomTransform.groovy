@@ -54,7 +54,7 @@ class EffectivePomTransform extends DefaultTask {
             String groupId = element.groupId.text()
             String artifactId = element.artifactId.text()
             String version = element.version.text()
-            String path = "$groupId-$artifactId-$version.xml"
+            String path = "${groupId}-${artifactId}-${version}.xml"
             File file = new File(temporaryDir, path)
 
             file.withWriter { writer ->

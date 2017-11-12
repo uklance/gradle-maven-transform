@@ -8,9 +8,9 @@ import org.gradle.api.tasks.TaskContainer;
 /**
  * Created by Lance on 11/11/2017.
  */
-public class MavenTransformPlugin implements Plugin<Project> {
+class MavenTransformPlugin implements Plugin<Project> {
     @Override
-    public void apply(Project project) {
+    void apply(Project project) {
         TaskContainer tasks = project.getTasks();
         EffectivePom effectivePom = tasks.create("effectivePom", EffectivePom.class);
         EffectivePomTransform pomTransform = tasks.create("pomTransform", EffectivePomTransform.class);
@@ -19,6 +19,4 @@ public class MavenTransformPlugin implements Plugin<Project> {
         MavenTransformModel model = new MavenTransformModelImpl(project, effectivePom, pomTransform);
         project.getExtensions().add("mavenTransform", model);
     }
-
-
 }
