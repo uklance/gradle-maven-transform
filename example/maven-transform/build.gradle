@@ -10,11 +10,14 @@ buildscript {
 
 apply plugin: 'com.lazan.maven-transform'
 
-mavenTransform {
-	rootPom '../smallJavaMultiProject/pom.xml'
+pomTransform {
+	poms fileTree('../smallJavaMultiProject').matching {
+		include 'pom.xml'
+		include '*/pom.xml'
+	}
 	outputDirectory "$buildDir/mavenTransform"
 
-	transformManyToOne {
+	manyToOne {
 		outputPath "settings.gradle"
 		freemarkerTemplate 'settings-projects.ftl'
 		context 'modelCount', { Collection models ->
@@ -23,8 +26,9 @@ mavenTransform {
 		classpath files('src/main/resources')
 	}
 
-	transformOneToOne {
-		outputPath { mavenModel -> "${mavenModel.artifactId}.gradle" }
+	oneToOne {
+		outputPath { mavenModel -> "${mavenModel.artifactId}.gradle".toString() }
+		freemarkerTemplate 'project-dependencies.ftl'
 		classpath files('src/main/resources')
 	}
-}	
+}

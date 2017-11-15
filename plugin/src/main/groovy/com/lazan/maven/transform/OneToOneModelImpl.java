@@ -9,6 +9,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -18,7 +19,7 @@ public class OneToOneModelImpl implements OneToOneModel, ClassLoaderSource {
     private FileCollection classpath;
     private Function<Model, String> outputPathFunction;
     private List<Template> templates = new ArrayList<>();
-    private Map<String, Function<Model, Object>> contextFunctions;
+    private Map<String, Function<Model, Object>> contextFunctions = new LinkedHashMap<>();
 
     public OneToOneModelImpl(Project project) {
         this.project = project;

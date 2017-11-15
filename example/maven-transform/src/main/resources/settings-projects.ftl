@@ -1,1 +1,3 @@
-Number of projects ${modelCount}
+<#list projects as project>
+include ':${project.artifactId}'
+</#list>
