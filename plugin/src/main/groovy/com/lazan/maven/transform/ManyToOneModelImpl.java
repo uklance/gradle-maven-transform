@@ -19,7 +19,7 @@ public class ManyToOneModelImpl implements ManyToOneModel, ClassLoaderSource {
     private FileCollection classpath;
     private String outputPath;
     private List<Template> templates = new ArrayList<>();
-    private Map<String, Function<Collection<Model>, Object>> contextFunctions = new LinkedHashMap<>();
+    private Map<String, Function<ProjectsContext, Object>> contextFunctions = new LinkedHashMap<>();
 
     public ManyToOneModelImpl(Project project) {
         this.project = project;
@@ -46,7 +46,7 @@ public class ManyToOneModelImpl implements ManyToOneModel, ClassLoaderSource {
     }
 
     @Override
-    public void context(String contextKey, Function<Collection<Model>, Object> contextFunction) {
+    public void context(String contextKey, Function<ProjectsContext, Object> contextFunction) {
         contextFunctions.put(contextKey, contextFunction);
     }
 
@@ -71,7 +71,7 @@ public class ManyToOneModelImpl implements ManyToOneModel, ClassLoaderSource {
         return templates;
     }
 
-    public Map<String, Function<Collection<Model>, Object>> getContextFunctions() {
+    public Map<String, Function<ProjectsContext, Object>> getContextFunctions() {
         return contextFunctions;
     }
 }

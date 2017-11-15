@@ -14,5 +14,5 @@ public interface OneToOneModel {
     void outputPath(Function<Model, String> outputFileFunction);
     void freemarkerTemplate(String templatePath);
     void template(Template template);
-    void context(String contextKey, Function<Model, Object> contextFunction);
+    void context(String contextKey, Function<ProjectContext, Object> contextFunction);
 }

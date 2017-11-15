@@ -19,7 +19,7 @@ public class OneToOneModelImpl implements OneToOneModel, ClassLoaderSource {
     private FileCollection classpath;
     private Function<Model, String> outputPathFunction;
     private List<Template> templates = new ArrayList<>();
-    private Map<String, Function<Model, Object>> contextFunctions = new LinkedHashMap<>();
+    private Map<String, Function<ProjectContext, Object>> contextFunctions = new LinkedHashMap<>();
 
     public OneToOneModelImpl(Project project) {
         this.project = project;
@@ -46,7 +46,7 @@ public class OneToOneModelImpl implements OneToOneModel, ClassLoaderSource {
     }
 
     @Override
-    public void context(String contextKey, Function<Model, Object> contextFunction) {
+    public void context(String contextKey, Function<ProjectContext, Object> contextFunction) {
         contextFunctions.put(contextKey, contextFunction);
     }
 
@@ -71,7 +71,7 @@ public class OneToOneModelImpl implements OneToOneModel, ClassLoaderSource {
         return templates;
     }
 
-    public Map<String, Function<Model, Object>> getContextFunctions() {
+    public Map<String, Function<ProjectContext, Object>> getContextFunctions() {
         return contextFunctions;
     }
 }

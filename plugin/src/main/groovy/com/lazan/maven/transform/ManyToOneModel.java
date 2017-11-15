@@ -10,5 +10,5 @@ public interface ManyToOneModel {
     void outputPath(String outputPath);
     void freemarkerTemplate(String templatePath);
     void template(Template template);
-    void context(String contextKey, Function<Collection<Model>, Object> contextFunction);
+    void context(String contextKey, Function<ProjectsContext, Object> contextFunction);
 }

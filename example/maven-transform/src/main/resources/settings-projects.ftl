@@ -1,3 +1,3 @@
-<#list projects as project>
+<#list context.projects as project>
 include ':${project.artifactId}'
 </#list>

@@ -85,35 +85,36 @@ public class PomTransform extends DefaultTask {
             pomModelMap.put(pomFile, effectivePom);
         }
 
+        ProjectsContext projectsContext = new ProjectsContextImpl(pomModelMap);
         Collection<Model> pomModels = pomModelMap.values();
         for (ManyToOneModelImpl model : manyToOneModels) {
             File outFile = new File(outputDirectory, model.getOutputPath());
-            Map<String, Object> context = new LinkedHashMap<>();
-            context.put("projects", pomModels);
-            for (Map.Entry<String, Function<Collection<Model>, Object>> entry : model.getContextFunctions().entrySet()) {
-                context.put(entry.getKey(), entry.getValue().apply(pomModels));
+            Map<String, Object> templateContext = new LinkedHashMap<>();
+            templateContext.put("context", projectsContext);
+            for (Map.Entry<String, Function<ProjectsContext, Object>> entry : model.getContextFunctions().entrySet()) {
+                templateContext.put(entry.getKey(), entry.getValue().apply(projectsContext));
             }
             try (OutputStream out = new FileOutputStream(outFile)) {
                 for (Template template : model.getTemplates()) {
-                    template.transform(context, out);
+                    template.transform(templateContext, out);
                 }
                 out.flush();
                 project.getLogger().lifecycle("Wrote to {}", outFile);
             }
         }
         for (Model pomModel : pomModelMap.values()) {
+            ProjectContext projectContext = new ProjectContextImpl(pomModelMap, pomModel);
+            Map<String, Object> templateContext = new LinkedHashMap<>();
+            templateContext.put("context", projectContext);
             for (OneToOneModelImpl model : oneToOneModels) {
                 String path = model.getOutputPathFunction().apply(pomModel).toString();
                 File outFile = new File(outputDirectory, path);
-                Map<String, Object> context = new LinkedHashMap<>();
-                context.put("projects", pomModels);
-                context.put("project", pomModel);
-                for (Map.Entry<String, Function<Model, Object>> entry : model.getContextFunctions().entrySet()) {
-                    context.put(entry.getKey(), entry.getValue().apply(pomModel));
+                for (Map.Entry<String, Function<ProjectContext, Object>> entry : model.getContextFunctions().entrySet()) {
+                    templateContext.put(entry.getKey(), entry.getValue().apply(projectContext));
                 }
                 try (OutputStream out = new FileOutputStream(outFile)) {
                     for (Template template : model.getTemplates()) {
-                        template.transform(context, out);
+                        template.transform(templateContext, out);
                     }
                     out.flush();
                     project.getLogger().lifecycle("Wrote to {}", outFile);

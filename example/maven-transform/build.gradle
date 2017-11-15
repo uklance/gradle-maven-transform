@@ -8,11 +8,13 @@ buildscript {
 	}
 }
 
+group = 'com.lazan'
+version = file('../../version.txt').text.trim()
+
 apply plugin: 'com.lazan.maven-transform'
 
 pomTransform {
 	poms fileTree('../smallJavaMultiProject').matching {
-		include 'pom.xml'
 		include '*/pom.xml'
 	}
 	outputDirectory "$buildDir/mavenTransform"
@@ -20,14 +22,14 @@ pomTransform {
 	manyToOne {
 		outputPath "settings.gradle"
 		freemarkerTemplate 'settings-projects.ftl'
-		context 'modelCount', { Collection models ->
-			models.size()
+		context 'modelCount', { manyContext ->
+			manyContext.projects.size()
 		}
 		classpath files('src/main/resources')
 	}
 
 	oneToOne {
-		outputPath { mavenModel -> "${mavenModel.artifactId}.gradle".toString() }
+		outputPath { singleContext -> "${singleContext.artifactId}.gradle".toString() }
 		freemarkerTemplate 'project-dependencies.ftl'
 		classpath files('src/main/resources')
 	}

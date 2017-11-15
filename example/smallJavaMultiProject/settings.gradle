@@ -1,0 +1,9 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    def version = file('../../version.txt').text.trim()
+    dependencies {
+        classpath "com.lazan:maven-transform:$version"
+    }
+}
