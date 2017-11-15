@@ -34,3 +34,13 @@ pomTransform {
 		classpath files('src/main/resources')
 	}
 }
+
+task jar(type: Jar) {
+	from pomTransform.outputDirectory
+}
+
+artifacts {
+	archives jar
+}
+
+build.dependsOn jar
