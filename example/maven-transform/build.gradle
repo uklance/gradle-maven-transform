@@ -12,9 +12,10 @@ group = 'com.lazan'
 version = file('../../version.txt').text.trim()
 
 apply plugin: 'com.lazan.maven-transform'
+apply plugin: 'java'
 
 pomTransform {
-	poms fileTree('../smallJavaMultiProject').matching {
+	poms fileTree('../maven-root').matching {
 		include '*/pom.xml'
 	}
 	outputDirectory "$buildDir/mavenTransform"
@@ -35,7 +36,8 @@ pomTransform {
 	}
 }
 
-task jar(type: Jar) {
+jar {
+	dependsOn pomTransform
 	from pomTransform.outputDirectory
 }
 

@@ -1,0 +1,35 @@
+def mavenProjects = [
+    'project0', 'project1', 'project2', 'project3', 'project4',
+    'project5', 'project6', 'project7', 'project8', 'project9'
+]
+
+allprojects { p ->
+	println "Project ${p.name} ${p.path}"
+}
+
+mavenProjects.each { projectName ->
+	project(":$projectName") {
+		apply plugin: 'java'
+		
+		version = file('../../../version.txt').text.trim()
+		
+		configurations {
+			mavenTransform
+		}
+		
+		repositories {
+			mavenCentral()
+		}
+		
+		dependencies {
+			mavenTransform "com.lazan:maven-transform:$version"
+		}
+		
+		File scriptJar = configurations.mavenTransform.singleFile
+		def script = zipTree(scriptJar).matching {
+			include "${projectName}.gradle"
+		}.singleFile
+		
+		apply from: script
+	}
+}
