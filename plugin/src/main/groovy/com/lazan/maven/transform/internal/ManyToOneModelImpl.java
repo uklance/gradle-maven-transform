@@ -1,27 +1,34 @@
-package com.lazan.maven.transform;
+package com.lazan.maven.transform.internal;
 
 import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
+
+import com.lazan.maven.transform.ClassLoaderSource;
+import com.lazan.maven.transform.FreemarkerTemplate;
+import com.lazan.maven.transform.ManyToOneModel;
+import com.lazan.maven.transform.ProjectsContext;
+import com.lazan.maven.transform.Template;
+
 import org.apache.maven.model.Model;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
-public class OneToOneModelImpl implements OneToOneModel, ClassLoaderSource {
+/**
+ * Created by Lance on 11/11/2017.
+ */
+public class ManyToOneModelImpl implements ManyToOneModel, ClassLoaderSource {
     private final Project project;
     private FileCollection classpath;
-    private Function<Model, String> outputPathFunction;
+    private String outputPath;
     private List<Template> templates = new ArrayList<>();
-    private Map<String, Function<ProjectContext, Object>> contextFunctions = new LinkedHashMap<>();
+    private Map<String, Function<ProjectsContext, Object>> contextFunctions = new LinkedHashMap<>();
 
-    public OneToOneModelImpl(Project project) {
+    public ManyToOneModelImpl(Project project) {
         this.project = project;
     }
 
@@ -31,8 +38,8 @@ public class OneToOneModelImpl implements OneToOneModel, ClassLoaderSource {
     }
 
     @Override
-    public void outputPath(Function<Model, String> outputPathFunction) {
-        this.outputPathFunction = outputPathFunction;
+    public void outputPath(String outputPath) {
+        this.outputPath = outputPath;
     }
 
     @Override
@@ -46,7 +53,7 @@ public class OneToOneModelImpl implements OneToOneModel, ClassLoaderSource {
     }
 
     @Override
-    public void context(String contextKey, Function<ProjectContext, Object> contextFunction) {
+    public void context(String contextKey, Function<ProjectsContext, Object> contextFunction) {
         contextFunctions.put(contextKey, contextFunction);
     }
 
@@ -63,15 +70,15 @@ public class OneToOneModelImpl implements OneToOneModel, ClassLoaderSource {
         return new URLClassLoader(urls, null);
     }
 
-    public Function<Model, String> getOutputPathFunction() {
-        return outputPathFunction;
+    public String getOutputPath() {
+        return outputPath;
     }
 
     public List<Template> getTemplates() {
         return templates;
     }
 
-    public Map<String, Function<ProjectContext, Object>> getContextFunctions() {
+    public Map<String, Function<ProjectsContext, Object>> getContextFunctions() {
         return contextFunctions;
     }
     

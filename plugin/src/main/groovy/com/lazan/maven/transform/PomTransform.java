@@ -18,6 +18,11 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.util.ConfigureUtil;
 
+import com.lazan.maven.transform.internal.ManyToOneModelImpl;
+import com.lazan.maven.transform.internal.OneToOneModelImpl;
+import com.lazan.maven.transform.internal.ProjectContextImpl;
+import com.lazan.maven.transform.internal.ProjectsContextImpl;
+
 import java.io.*;
 import java.util.*;
 import java.util.function.Function;

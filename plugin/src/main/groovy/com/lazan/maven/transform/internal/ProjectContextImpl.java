@@ -1,8 +1,10 @@
-package com.lazan.maven.transform;
+package com.lazan.maven.transform.internal;
 
 import java.io.File;
 
 import org.apache.maven.model.Model;
+
+import com.lazan.maven.transform.ProjectContext;
 
 /**
  * Created by Lance on 15/11/2017.

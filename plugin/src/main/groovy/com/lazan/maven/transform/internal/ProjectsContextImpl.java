@@ -1,4 +1,4 @@
-package com.lazan.maven.transform;
+package com.lazan.maven.transform.internal;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -9,6 +9,9 @@ import java.util.stream.Collectors;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
+
+import com.lazan.maven.transform.ProjectContext;
+import com.lazan.maven.transform.ProjectsContext;
 
 /**
  * Created by Lance on 15/11/2017.
