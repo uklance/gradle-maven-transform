@@ -13,5 +13,8 @@ before_script:
 script:
 - ./gradlew check --stacktrace
 
+before_install:
+- cd example/maven-root
+
 install:
 - ./gradlew assemble --stacktrace
