@@ -28,6 +28,7 @@ public class PomTransform extends DefaultTask {
     private List<OneToOneModelImpl> oneToOneModels = new ArrayList<>();
     private List<ManyToOneModelImpl> manyToOneModels = new ArrayList<>();
     private File outputDirectory;
+    private List<FileCollection> classpaths = new ArrayList<>();
 
     public void outputDirectory(Object outputDirectory) {
         this.outputDirectory = getProject().file(outputDirectory);
@@ -49,6 +50,11 @@ public class PomTransform extends DefaultTask {
     public FileCollection getPoms() {
         return poms;
     }
+    
+    @InputFiles
+    public List<FileCollection> getClasspaths() {
+		return classpaths;
+	}
 
     @OutputDirectory
     public File getOutputDirectory() {
@@ -59,12 +65,18 @@ public class PomTransform extends DefaultTask {
         OneToOneModelImpl model = new OneToOneModelImpl(getProject());
         ConfigureUtil.configure(configureClosure, model);
         oneToOneModels.add(model);
+        if (model.getClasspath() != null) {
+        	classpaths.add(model.getClasspath());
+        }
     }
 
     public void manyToOne(Closure configureClosure) {
         ManyToOneModelImpl model = new ManyToOneModelImpl(getProject());
         ConfigureUtil.configure(configureClosure, model);
         manyToOneModels.add(model);
+        if (model.getClasspath() != null) {
+        	classpaths.add(model.getClasspath());
+        }
     }
 
     @TaskAction

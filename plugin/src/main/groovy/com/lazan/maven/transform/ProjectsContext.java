@@ -12,5 +12,6 @@ public interface ProjectsContext {
     Collection<ProjectContext> getProjectContexts();
     boolean isProject(Dependency dependency);
     ProjectContext getProjectContext(Dependency dependency);
+    Model getProject(Dependency dependency);
     Collection<Model> getProjects();
 }

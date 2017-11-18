@@ -41,6 +41,11 @@ public class ProjectsContextImpl implements ProjectsContext {
 	}
 	
 	@Override
+	public Model getProject(Dependency dependency) {
+		return getProjectContext(dependency).getProject();
+	}
+	
+	@Override
 	public boolean isProject(Dependency dependency) {
 		return projectContextMap.containsKey(getGav(dependency));
 	}

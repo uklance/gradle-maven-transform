@@ -74,4 +74,8 @@ public class OneToOneModelImpl implements OneToOneModel, ClassLoaderSource {
     public Map<String, Function<ProjectContext, Object>> getContextFunctions() {
         return contextFunctions;
     }
+    
+    public FileCollection getClasspath() {
+		return classpath;
+	}
 }

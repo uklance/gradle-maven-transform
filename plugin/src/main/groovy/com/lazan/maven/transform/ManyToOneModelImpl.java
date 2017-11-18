@@ -74,4 +74,8 @@ public class ManyToOneModelImpl implements ManyToOneModel, ClassLoaderSource {
     public Map<String, Function<ProjectsContext, Object>> getContextFunctions() {
         return contextFunctions;
     }
+    
+    public FileCollection getClasspath() {
+		return classpath;
+	}
 }
