@@ -6,16 +6,12 @@ jdk:
 env:
 - CI=true
 
-before_script:
-- cd example/maven-root
-- chmod +x gradlew
- 
-script:
-- ./gradlew check --stacktrace
-
 before_install:
 - cd example/maven-root
 - chmod +x gradlew
 
 install:
 - ./gradlew assemble --stacktrace
+
+script:
+- ./gradlew check --stacktrace
