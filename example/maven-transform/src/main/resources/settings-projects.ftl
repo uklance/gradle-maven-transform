@@ -1,3 +1,3 @@
-<#list context.projects as project>
-include ':${project.artifactId}'
+<#list projectsContext.projectContexts as projectContext>
+include '${projectContext.projectPath}'
 </#list>

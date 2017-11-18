@@ -1,43 +1,61 @@
 package com.lazan.maven.transform;
 
-import org.apache.maven.model.Model;
-
-import java.io.File;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Model;
 
 /**
  * Created by Lance on 15/11/2017.
  */
 public class ProjectsContextImpl implements ProjectsContext {
-    private final Collection<Model> models;
-    private final Map<String, File> pomXmlByGav;
+	private final Map<String, ProjectContext> projectContextMap;
+	private final List<Model> projects;
 
-    public ProjectsContextImpl(Map<File, Model> modelMap) {
-        this.models = modelMap.values();
-        this.pomXmlByGav = new LinkedHashMap<>();
-        for (Map.Entry<File, Model> entry : modelMap.entrySet()) {
-            Model project = entry.getValue();
-            String gav = getGav(project);
-            if (pomXmlByGav.containsKey(gav)) {
-                throw new RuntimeException("Duplicate GAV " + gav);
-            }
-            pomXmlByGav.put(gav, entry.getKey());
-        }
-    }
-
-    @Override
-    public Collection<Model> getProjects() {
-        return models;
-    }
-
-    @Override
-    public File getPomXml(Model project) {
-        return pomXmlByGav.get(getGav(project));
-    }
-
-    protected String getGav(Model project) {
-        return String.format("%s:%s:%s", project.getGroupId(), project.getArtifactId(), project.getVersion());
-    }
+	public ProjectsContextImpl(Collection<ProjectContext> projectContexts) {
+		super();
+		Map<String, ProjectContext> map = new LinkedHashMap<>();
+		for (ProjectContext projectContext : projectContexts) {
+			String gav = projectContext.getGav();
+			if (map.containsKey(gav)) {
+				throw new RuntimeException("Duplicate GAV " + gav);
+			}
+			map.put(gav,  projectContext);
+		}
+		projectContextMap = Collections.unmodifiableMap(map);
+		projects = projectContexts.stream().map(ProjectContext::getProject).collect(Collectors.toList());
+	}
+	
+	@Override
+	public ProjectContext getProjectContext(Dependency dependency) {
+		String gav = getGav(dependency);
+		if (!projectContextMap.containsKey(gav)) {
+			throw new RuntimeException(String.format("%s is not a project. Found %s", gav, projectContextMap.keySet()));
+		}
+		return projectContextMap.get(gav);
+	}
+	
+	@Override
+	public boolean isProject(Dependency dependency) {
+		return projectContextMap.containsKey(getGav(dependency));
+	}
+	
+	@Override
+	public Collection<ProjectContext> getProjectContexts() {
+		return projectContextMap.values();
+	}
+	
+	@Override
+	public Collection<Model> getProjects() {
+		return projects;
+	}
+	
+	protected String getGav(Dependency dependency) {
+		return String.format("%s:%s:%s", dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion());
+	}
 }

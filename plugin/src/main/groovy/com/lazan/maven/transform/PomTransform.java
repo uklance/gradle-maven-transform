@@ -73,7 +73,7 @@ public class PomTransform extends DefaultTask {
         DefaultModelBuilderFactory factory = new DefaultModelBuilderFactory();
         DefaultModelBuilder builder = factory.newInstance();
 
-        Map<File, Model> pomModelMap = new LinkedHashMap<>();
+        List<ProjectContext> projectContexts = new ArrayList<>();
         for (File pomFile : poms.getFiles()) {
             ModelBuildingRequest req = new DefaultModelBuildingRequest();
             req.setProcessPlugins(false);
@@ -82,15 +82,15 @@ public class PomTransform extends DefaultTask {
             req.setValidationLevel(ModelBuildingRequest.VALIDATION_LEVEL_MINIMAL);
 
             Model effectivePom = builder.build(req).getEffectiveModel();
-            pomModelMap.put(pomFile, effectivePom);
+            
+            projectContexts.add(new ProjectContextImpl(pomFile, effectivePom));
         }
 
-        ProjectsContext projectsContext = new ProjectsContextImpl(pomModelMap);
-        Collection<Model> pomModels = pomModelMap.values();
+        ProjectsContext projectsContext = new ProjectsContextImpl(projectContexts);
         for (ManyToOneModelImpl model : manyToOneModels) {
             File outFile = new File(outputDirectory, model.getOutputPath());
             Map<String, Object> templateContext = new LinkedHashMap<>();
-            templateContext.put("context", projectsContext);
+            templateContext.put("projectsContext", projectsContext);
             for (Map.Entry<String, Function<ProjectsContext, Object>> entry : model.getContextFunctions().entrySet()) {
                 templateContext.put(entry.getKey(), entry.getValue().apply(projectsContext));
             }
@@ -102,12 +102,12 @@ public class PomTransform extends DefaultTask {
                 project.getLogger().lifecycle("Wrote to {}", outFile);
             }
         }
-        for (Model pomModel : pomModelMap.values()) {
-            ProjectContext projectContext = new ProjectContextImpl(pomModelMap, pomModel);
+        for (ProjectContext projectContext : projectContexts) {
             Map<String, Object> templateContext = new LinkedHashMap<>();
-            templateContext.put("context", projectContext);
+            templateContext.put("projectsContext", projectsContext);
+            templateContext.put("projectContext", projectContext);
             for (OneToOneModelImpl model : oneToOneModels) {
-                String path = model.getOutputPathFunction().apply(pomModel).toString();
+                String path = model.getOutputPathFunction().apply(projectContext.getProject());
                 File outFile = new File(outputDirectory, path);
                 for (Map.Entry<String, Function<ProjectContext, Object>> entry : model.getContextFunctions().entrySet()) {
                     templateContext.put(entry.getKey(), entry.getValue().apply(projectContext));

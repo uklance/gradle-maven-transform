@@ -1,29 +1,32 @@
 package com.lazan.maven.transform;
 
-import org.apache.maven.model.Model;
-
 import java.io.File;
-import java.util.Map;
+
+import org.apache.maven.model.Model;
 
 /**
  * Created by Lance on 15/11/2017.
  */
-public class ProjectContextImpl extends ProjectsContextImpl implements ProjectContext {
+public class ProjectContextImpl implements ProjectContext {
+    private final File pomXml;
     private final Model project;
+    private final String gav;
+    
+    public ProjectContextImpl(File pomXml, Model project) {
+		super();
+		this.pomXml = pomXml;
+		this.project = project;
+		this.gav = String.format("%s:%s:%s", project.getGroupId(), project.getArtifactId(), project.getVersion());
+	}
 
-    public ProjectContextImpl(Map<File, Model> modelMap, Model project) {
-        super(modelMap);
-        this.project = project;
-    }
-
-    @Override
+	@Override
     public Model getProject() {
         return project;
     }
 
     @Override
     public File getPomXml() {
-        return getPomXml(project);
+    	return pomXml;
     }
 
     @Override
@@ -40,4 +43,17 @@ public class ProjectContextImpl extends ProjectsContextImpl implements ProjectCo
     public String getVersion() {
         return project.getVersion();
     }
+    
+    /**
+     * TODO: make this relative to the root pom.xml
+     */
+    @Override
+    public String getProjectPath() {
+    	return String.format(":%s", getArtifactId());
+    }
+
+    @Override
+	public String getGav() {
+		return gav;
+	}
 }
