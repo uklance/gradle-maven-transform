@@ -15,6 +15,7 @@ script:
 
 before_install:
 - cd example/maven-root
+- chmod +x gradlew
 
 install:
 - ./gradlew assemble --stacktrace
