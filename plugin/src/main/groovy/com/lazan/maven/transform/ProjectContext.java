@@ -15,4 +15,5 @@ public interface ProjectContext {
     String getVersion();
     String getProjectPath();
     String getGav();
+    ProjectsContext getProjectsContext();
 }

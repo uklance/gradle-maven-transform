@@ -68,14 +68,28 @@ public class MavenTransform extends DefaultTask {
         }
     }
 
+    public void templateClasspath(FileCollection templateClasspath) {
+    	this.templateClasspath = templateClasspath;
+    }
+    
     @InputFiles
     public FileCollection getPoms() {
         return pomXmlCollection;
     }
     
     @InputFiles
-    public FileCollection getTemplateClasspath() {
-		return templateClasspath;
+    public FileCollection getTemplateFiles() {
+    	Project project = getProject();
+    	FileCollection templateFiles = project.files();
+    	for (File file : templateClasspath.getFiles()) {
+    		if (file.isDirectory()) {
+    			// add all files in the directory so the task is dirty if any template files change
+    			templateFiles = templateFiles.plus(project.fileTree(file));
+    		} else {
+    			templateFiles = templateFiles.plus(project.files(file));
+    		}
+    	}
+		return templateFiles;
 	}
 
     @OutputDirectory
@@ -83,25 +97,42 @@ public class MavenTransform extends DefaultTask {
         return outputDirectory;
     }
 
-    public void projectTransform(Closure configureClosure) {
+    /**
+     * Configure a one-to-one transform on each of the effective poms. Each effective
+     * pom will create a result file. A {@link ProjectTransformModel} will be passed to the closure
+     * @param configureClosure the closure used to configure the transformation
+     */
+    @SuppressWarnings("rawtypes")
+	public void projectTransform(Closure configureClosure) {
         ProjectTransformModelImpl model = new ProjectTransformModelImpl(getProject());
         ConfigureUtil.configure(configureClosure, model);
         projectTransformModels.add(model);
     }
 
+    /**
+     * Configure an aggregation transform on all of the effective poms as a group such that a single result file will be 
+     * created from the effective poms. A {@link ProjectsTransformModel} will be passed to the closure
+     * @param configureClosure the closure used to configure the transformation
+     */
+    @SuppressWarnings("rawtypes")
     public void projectsTransform(Closure configureClosure) {
         ProjectsTransformModelImpl model = new ProjectsTransformModelImpl(getProject());
         ConfigureUtil.configure(configureClosure, model);
         projectsTransformModels.add(model);
     }
-
+    
     @TaskAction
-    public void pomTransform() throws Exception {
-        Project project = getProject();
+    public void mavenTransform() throws Exception {
+        ProjectsContext projectsContext = createProjectsContext();
+        ClassLoader templateClassLoader = getTemplateClassLoader();
+        applyProjectsTransforms(projectsContext, templateClassLoader);
+        applyProjectTransforms(projectsContext, templateClassLoader);
+    }
+
+    protected ProjectsContext createProjectsContext() throws Exception {
         DefaultModelBuilderFactory factory = new DefaultModelBuilderFactory();
         DefaultModelBuilder builder = factory.newInstance();
-
-        List<ProjectContext> projectContexts = new ArrayList<>();
+        List<ProjectContextImpl> projectContexts = new ArrayList<>();
         for (File pomXml : pomXmlCollection.getFiles()) {
             ModelBuildingRequest req = new DefaultModelBuildingRequest();
             req.setProcessPlugins(false);
@@ -115,23 +146,14 @@ public class MavenTransform extends DefaultTask {
         }
 
         ProjectsContext projectsContext = new ProjectsContextImpl(projectContexts);
-        ClassLoader templateClassLoader = getTemplateClassLoader();
-        for (ProjectsTransformModelImpl model : projectsTransformModels) {
-            File outFile = new File(outputDirectory, model.getOutputPath());
-            Map<String, Object> templateContext = new LinkedHashMap<>();
-            templateContext.put("projectsContext", projectsContext);
-            for (Map.Entry<String, Function<ProjectsContext, Object>> entry : model.getContextFunctions().entrySet()) {
-                templateContext.put(entry.getKey(), entry.getValue().apply(projectsContext));
-            }
-            try (OutputStream out = new FileOutputStream(outFile)) {
-                for (Template template : model.getTemplates()) {
-                    template.transform(templateContext, templateClassLoader, out);
-                }
-                out.flush();
-                project.getLogger().lifecycle("Wrote to {}", outFile);
-            }
+        for (ProjectContextImpl projectContext : projectContexts) {
+        	projectContext.setProjectsContext(projectsContext);
         }
-        for (ProjectContext projectContext : projectContexts) {
+        return projectsContext;    	
+    }
+
+	protected void applyProjectTransforms(ProjectsContext projectsContext, ClassLoader templateClassLoader) throws Exception {
+		for (ProjectContext projectContext : projectsContext.getProjectContexts()) {
             Map<String, Object> templateContext = new LinkedHashMap<>();
             templateContext.put("projectsContext", projectsContext);
             templateContext.put("projectContext", projectContext);
@@ -146,16 +168,29 @@ public class MavenTransform extends DefaultTask {
                         template.transform(templateContext, templateClassLoader, out);
                     }
                     out.flush();
-                    project.getLogger().lifecycle("Wrote to {}", outFile);
+                    getProject().getLogger().lifecycle("Wrote to {}", outFile);
                 }
             }
         }
-    }
-    
-    public void templateClasspath(FileCollection templateClasspath) {
-    	this.templateClasspath = templateClasspath;
-    }
-    
+	}
+
+	protected void applyProjectsTransforms(ProjectsContext projectsContext, ClassLoader templateClassLoader) throws Exception {
+		for (ProjectsTransformModelImpl model : projectsTransformModels) {
+            File outFile = new File(outputDirectory, model.getOutputPath());
+            Map<String, Object> templateContext = new LinkedHashMap<>();
+            templateContext.put("projectsContext", projectsContext);
+            for (Map.Entry<String, Function<ProjectsContext, Object>> entry : model.getContextFunctions().entrySet()) {
+                templateContext.put(entry.getKey(), entry.getValue().apply(projectsContext));
+            }
+            try (OutputStream out = new FileOutputStream(outFile)) {
+                for (Template template : model.getTemplates()) {
+                    template.transform(templateContext, templateClassLoader, out);
+                }
+                out.flush();
+                getProject().getLogger().lifecycle("Wrote to {}", outFile);
+            }
+        }
+	}
     
     protected ClassLoader getTemplateClassLoader() {
         Function<File, URL> toUrl = (File file) -> {
@@ -168,8 +203,6 @@ public class MavenTransform extends DefaultTask {
         URL[] urls = templateClasspath.getFiles().stream().map(toUrl).toArray(URL[]::new);
         return new URLClassLoader(urls, null);
     }
-
-    
 
     protected ModelResolver createModelResolver() {
         return new ModelResolver() {

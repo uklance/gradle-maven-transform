@@ -20,7 +20,7 @@ public class ProjectsContextImpl implements ProjectsContext {
 	private final Map<String, ProjectContext> projectContextMap;
 	private final List<Model> projects;
 
-	public ProjectsContextImpl(Collection<ProjectContext> projectContexts) {
+	public ProjectsContextImpl(Collection<? extends ProjectContext> projectContexts) {
 		super();
 		Map<String, ProjectContext> map = new LinkedHashMap<>();
 		for (ProjectContext projectContext : projectContexts) {

@@ -5,6 +5,7 @@ import java.io.File;
 import org.apache.maven.model.Model;
 
 import com.lazan.maven.transform.ProjectContext;
+import com.lazan.maven.transform.ProjectsContext;
 
 /**
  * Created by Lance on 15/11/2017.
@@ -13,6 +14,7 @@ public class ProjectContextImpl implements ProjectContext {
     private final File pomXml;
     private final Model project;
     private final String gav;
+	private ProjectsContext projectsContext;
     
     public ProjectContextImpl(File pomXml, Model project) {
 		super();
@@ -57,5 +59,14 @@ public class ProjectContextImpl implements ProjectContext {
     @Override
 	public String getGav() {
 		return gav;
+	}
+    
+    public void setProjectsContext(ProjectsContext projectsContext) {
+		this.projectsContext = projectsContext;
+	}
+
+    @Override
+	public ProjectsContext getProjectsContext() {
+		return projectsContext;
 	}
 }
