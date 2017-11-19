@@ -13,7 +13,7 @@ mavenTransform {
    outputDirectory "$buildDir/mavenTransform"
    templateClasspath files('src/main/freemarker')
    
-	 projectsTransform {
+   projectsTransform {
       // produce a single output file for all pom.xmls
       outputPath 'aggregate.gradle'
       freemarkerTemplate 'aggregate.gradle'
