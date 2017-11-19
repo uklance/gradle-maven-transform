@@ -9,7 +9,7 @@ import java.util.function.Function;
 /**
  * Created by Lance on 11/11/2017.
  */
-public interface OneToOneModel {
+public interface ProjectTransformModel {
     void classpath(FileCollection classpath);
     void outputPath(Function<Model, String> outputFileFunction);
     void freemarkerTemplate(String templatePath);

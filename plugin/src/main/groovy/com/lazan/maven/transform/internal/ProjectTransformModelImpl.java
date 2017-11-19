@@ -1,34 +1,32 @@
 package com.lazan.maven.transform.internal;
 
-import org.gradle.api.Project;
-import org.gradle.api.file.FileCollection;
-
-import com.lazan.maven.transform.ClassLoaderSource;
-import com.lazan.maven.transform.FreemarkerTemplate;
-import com.lazan.maven.transform.ManyToOneModel;
-import com.lazan.maven.transform.ProjectsContext;
-import com.lazan.maven.transform.Template;
-
-import org.apache.maven.model.Model;
-
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
-/**
- * Created by Lance on 11/11/2017.
- */
-public class ManyToOneModelImpl implements ManyToOneModel, ClassLoaderSource {
+import org.apache.maven.model.Model;
+import org.gradle.api.Project;
+import org.gradle.api.file.FileCollection;
+
+import com.lazan.maven.transform.FreemarkerTemplate;
+import com.lazan.maven.transform.ProjectContext;
+import com.lazan.maven.transform.ProjectTransformModel;
+import com.lazan.maven.transform.Template;
+
+public class ProjectTransformModelImpl implements ProjectTransformModel {
     private final Project project;
     private FileCollection classpath;
-    private String outputPath;
+    private Function<Model, String> outputPathFunction;
     private List<Template> templates = new ArrayList<>();
-    private Map<String, Function<ProjectsContext, Object>> contextFunctions = new LinkedHashMap<>();
+    private Map<String, Function<ProjectContext, Object>> contextFunctions = new LinkedHashMap<>();
 
-    public ManyToOneModelImpl(Project project) {
+    public ProjectTransformModelImpl(Project project) {
         this.project = project;
     }
 
@@ -38,13 +36,13 @@ public class ManyToOneModelImpl implements ManyToOneModel, ClassLoaderSource {
     }
 
     @Override
-    public void outputPath(String outputPath) {
-        this.outputPath = outputPath;
+    public void outputPath(Function<Model, String> outputPathFunction) {
+        this.outputPathFunction = outputPathFunction;
     }
 
     @Override
     public void freemarkerTemplate(String templatePath) {
-        template(new FreemarkerTemplate(this, templatePath));
+        template(new FreemarkerTemplate(templatePath));
     }
 
     @Override
@@ -53,11 +51,10 @@ public class ManyToOneModelImpl implements ManyToOneModel, ClassLoaderSource {
     }
 
     @Override
-    public void context(String contextKey, Function<ProjectsContext, Object> contextFunction) {
+    public void context(String contextKey, Function<ProjectContext, Object> contextFunction) {
         contextFunctions.put(contextKey, contextFunction);
     }
 
-    @Override
     public ClassLoader getClassLoader() {
         Function<File, URL> toUrl = (File file) -> {
             try {
@@ -70,15 +67,15 @@ public class ManyToOneModelImpl implements ManyToOneModel, ClassLoaderSource {
         return new URLClassLoader(urls, null);
     }
 
-    public String getOutputPath() {
-        return outputPath;
+    public Function<Model, String> getOutputPathFunction() {
+        return outputPathFunction;
     }
 
     public List<Template> getTemplates() {
         return templates;
     }
 
-    public Map<String, Function<ProjectsContext, Object>> getContextFunctions() {
+    public Map<String, Function<ProjectContext, Object>> getContextFunctions() {
         return contextFunctions;
     }
     

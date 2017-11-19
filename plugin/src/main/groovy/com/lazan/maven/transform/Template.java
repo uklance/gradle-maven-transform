@@ -8,5 +8,5 @@ import java.util.Map;
  * Created by Lance on 11/11/2017.
  */
 public interface Template {
-    void transform(Map<String, Object> context, OutputStream out) throws IOException;
+    void transform(Map<String, Object> context, ClassLoader classLoader, OutputStream out) throws IOException;
 }

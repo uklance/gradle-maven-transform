@@ -14,13 +14,13 @@ version = file('../../version.txt').text.trim()
 apply plugin: 'com.lazan.maven-transform'
 apply plugin: 'java'
 
-pomTransform {
-	poms fileTree('../maven-root').matching {
+mavenTransform {
+	pomXmls fileTree('../maven-root').matching {
 		include '*/pom.xml'
 	}
 	outputDirectory "$buildDir/mavenTransform"
 
-	manyToOne {
+	projectsTransform {
 		outputPath "settings.gradle"
 		freemarkerTemplate 'settings-projects.ftl'
 		context 'modelCount', { manyContext ->
@@ -29,7 +29,7 @@ pomTransform {
 		classpath files('src/main/resources')
 	}
 
-	oneToOne {
+	projectTransform {
 		outputPath { singleContext -> "${singleContext.artifactId}.gradle".toString() }
 		freemarkerTemplate 'project-dependencies.ftl'
 		classpath files('src/main/resources')
@@ -37,8 +37,8 @@ pomTransform {
 }
 
 jar {
-	dependsOn pomTransform
-	from pomTransform.outputDirectory
+	dependsOn mavenTransform
+	from mavenTransform.outputDirectory
 }
 
 artifacts {

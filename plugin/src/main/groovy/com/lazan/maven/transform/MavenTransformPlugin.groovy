@@ -13,7 +13,7 @@ class MavenTransformPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.apply(plugin: 'base')
         TaskContainer tasks = project.getTasks()
-        PomTransform pomTransform = tasks.create("pomTransform", PomTransform.class)
+        MavenTransform pomTransform = tasks.create("mavenTransform", MavenTransform.class)
         Task buildTask = tasks.findByName('build')
         buildTask.dependsOn pomTransform
     }

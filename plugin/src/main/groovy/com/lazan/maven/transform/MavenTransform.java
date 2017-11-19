@@ -18,8 +18,8 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.util.ConfigureUtil;
 
-import com.lazan.maven.transform.internal.ManyToOneModelImpl;
-import com.lazan.maven.transform.internal.OneToOneModelImpl;
+import com.lazan.maven.transform.internal.ProjectsTransformModelImpl;
+import com.lazan.maven.transform.internal.ProjectTransformModelImpl;
 import com.lazan.maven.transform.internal.ProjectContextImpl;
 import com.lazan.maven.transform.internal.ProjectsContextImpl;
 
@@ -28,10 +28,10 @@ import java.util.*;
 import java.util.function.Function;
 
 
-public class PomTransform extends DefaultTask {
-    private FileCollection poms;
-    private List<OneToOneModelImpl> oneToOneModels = new ArrayList<>();
-    private List<ManyToOneModelImpl> manyToOneModels = new ArrayList<>();
+public class MavenTransform extends DefaultTask {
+    private FileCollection pomXmlCollection;
+    private List<ProjectTransformModelImpl> projectTransformModels = new ArrayList<>();
+    private List<ProjectsTransformModelImpl> projectsTransformModels = new ArrayList<>();
     private File outputDirectory;
     private List<FileCollection> classpaths = new ArrayList<>();
 
@@ -39,21 +39,21 @@ public class PomTransform extends DefaultTask {
         this.outputDirectory = getProject().file(outputDirectory);
     }
 
-    public void pom(Object pom) {
-        poms(pom);
+    public void pomXml(Object pom) {
+        pomXmls(pom);
     }
 
-    public void poms(Object... poms) {
-        if (this.poms == null) {
-            this.poms = getProject().files(poms);
+    public void pomXmls(Object... poms) {
+        if (this.pomXmlCollection == null) {
+            this.pomXmlCollection = getProject().files(poms);
         } else {
-            this.poms = this.poms.plus(getProject().files(poms));
+            this.pomXmlCollection = this.pomXmlCollection.plus(getProject().files(poms));
         }
     }
 
     @InputFiles
     public FileCollection getPoms() {
-        return poms;
+        return pomXmlCollection;
     }
     
     @InputFiles
@@ -66,19 +66,19 @@ public class PomTransform extends DefaultTask {
         return outputDirectory;
     }
 
-    public void oneToOne(Closure configureClosure) {
-        OneToOneModelImpl model = new OneToOneModelImpl(getProject());
+    public void projectTransform(Closure configureClosure) {
+        ProjectTransformModelImpl model = new ProjectTransformModelImpl(getProject());
         ConfigureUtil.configure(configureClosure, model);
-        oneToOneModels.add(model);
+        projectTransformModels.add(model);
         if (model.getClasspath() != null) {
         	classpaths.add(model.getClasspath());
         }
     }
 
-    public void manyToOne(Closure configureClosure) {
-        ManyToOneModelImpl model = new ManyToOneModelImpl(getProject());
+    public void projectsTransform(Closure configureClosure) {
+        ProjectsTransformModelImpl model = new ProjectsTransformModelImpl(getProject());
         ConfigureUtil.configure(configureClosure, model);
-        manyToOneModels.add(model);
+        projectsTransformModels.add(model);
         if (model.getClasspath() != null) {
         	classpaths.add(model.getClasspath());
         }
@@ -91,20 +91,20 @@ public class PomTransform extends DefaultTask {
         DefaultModelBuilder builder = factory.newInstance();
 
         List<ProjectContext> projectContexts = new ArrayList<>();
-        for (File pomFile : poms.getFiles()) {
+        for (File pomXml : pomXmlCollection.getFiles()) {
             ModelBuildingRequest req = new DefaultModelBuildingRequest();
             req.setProcessPlugins(false);
-            req.setPomFile(pomFile);
+            req.setPomFile(pomXml);
             req.setModelResolver(createModelResolver());
             req.setValidationLevel(ModelBuildingRequest.VALIDATION_LEVEL_MINIMAL);
 
             Model effectivePom = builder.build(req).getEffectiveModel();
             
-            projectContexts.add(new ProjectContextImpl(pomFile, effectivePom));
+            projectContexts.add(new ProjectContextImpl(pomXml, effectivePom));
         }
 
         ProjectsContext projectsContext = new ProjectsContextImpl(projectContexts);
-        for (ManyToOneModelImpl model : manyToOneModels) {
+        for (ProjectsTransformModelImpl model : projectsTransformModels) {
             File outFile = new File(outputDirectory, model.getOutputPath());
             Map<String, Object> templateContext = new LinkedHashMap<>();
             templateContext.put("projectsContext", projectsContext);
@@ -113,7 +113,7 @@ public class PomTransform extends DefaultTask {
             }
             try (OutputStream out = new FileOutputStream(outFile)) {
                 for (Template template : model.getTemplates()) {
-                    template.transform(templateContext, out);
+                    template.transform(templateContext, model.getClassLoader(), out);
                 }
                 out.flush();
                 project.getLogger().lifecycle("Wrote to {}", outFile);
@@ -123,7 +123,7 @@ public class PomTransform extends DefaultTask {
             Map<String, Object> templateContext = new LinkedHashMap<>();
             templateContext.put("projectsContext", projectsContext);
             templateContext.put("projectContext", projectContext);
-            for (OneToOneModelImpl model : oneToOneModels) {
+            for (ProjectTransformModelImpl model : projectTransformModels) {
                 String path = model.getOutputPathFunction().apply(projectContext.getProject());
                 File outFile = new File(outputDirectory, path);
                 for (Map.Entry<String, Function<ProjectContext, Object>> entry : model.getContextFunctions().entrySet()) {
@@ -131,7 +131,7 @@ public class PomTransform extends DefaultTask {
                 }
                 try (OutputStream out = new FileOutputStream(outFile)) {
                     for (Template template : model.getTemplates()) {
-                        template.transform(templateContext, out);
+                        template.transform(templateContext, model.getClassLoader(), out);
                     }
                     out.flush();
                     project.getLogger().lifecycle("Wrote to {}", outFile);
@@ -151,16 +151,16 @@ public class PomTransform extends DefaultTask {
                 org.gradle.api.artifacts.Dependency dependency = getProject().getDependencies().create(depNotation);
                 config.getDependencies().add(dependency);
 
-                File pomFile = config.getSingleFile();
+                File pomXml = config.getSingleFile();
                 return new ModelSource() {
                     @Override
                     public InputStream getInputStream() throws IOException {
-                        return new FileInputStream(pomFile);
+                        return new FileInputStream(pomXml);
                     }
 
                     @Override
                     public String getLocation() {
-                        return pomFile.getAbsolutePath();
+                        return pomXml.getAbsolutePath();
                     }
                 };
             }

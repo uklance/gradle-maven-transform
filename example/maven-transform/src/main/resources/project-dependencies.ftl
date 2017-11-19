@@ -6,5 +6,5 @@ dependencies {
 	<#else>
 	    compile '${d.groupId}:${d.artifactId}:${d.version}'
 	</#if>
-</#list>
+</#list> 
 }

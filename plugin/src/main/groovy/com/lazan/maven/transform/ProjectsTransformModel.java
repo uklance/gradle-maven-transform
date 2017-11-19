@@ -5,7 +5,7 @@ import org.apache.maven.model.Model;
 import java.util.Collection;
 import java.util.function.Function;
 
-public interface ManyToOneModel {
+public interface ProjectsTransformModel {
     void classpath(FileCollection classpath);
     void outputPath(String outputPath);
     void freemarkerTemplate(String templatePath);
