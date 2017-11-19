@@ -30,7 +30,7 @@ mavenTransform {
 	}
 
 	projectTransform {
-		outputPath { singleContext -> "${singleContext.artifactId}.gradle".toString() }
+		outputPath { context -> "${context.artifactId}.gradle" }
 		freemarkerTemplate 'project-dependencies.ftl'
 	}
 }

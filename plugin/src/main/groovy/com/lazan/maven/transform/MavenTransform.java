@@ -136,7 +136,7 @@ public class MavenTransform extends DefaultTask {
             templateContext.put("projectsContext", projectsContext);
             templateContext.put("projectContext", projectContext);
             for (ProjectTransformModelImpl model : projectTransformModels) {
-                String path = model.getOutputPathFunction().apply(projectContext.getProject());
+                String path = model.getOutputPathFunction().apply(projectContext.getProject()).toString();
                 File outFile = new File(outputDirectory, path);
                 for (Map.Entry<String, Function<ProjectContext, Object>> entry : model.getContextFunctions().entrySet()) {
                     templateContext.put(entry.getKey(), entry.getValue().apply(projectContext));
