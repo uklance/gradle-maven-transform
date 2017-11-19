@@ -16,7 +16,7 @@ mavenTransform {
    projectsTransform {
       // produce a single output file for all pom.xmls
       outputPath 'aggregate.gradle'
-      freemarkerTemplate 'aggregate.gradle'
+      freemarkerTemplate 'aggregate.ftl'
    }
 
    projectTransform {
