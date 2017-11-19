@@ -22,7 +22,7 @@ mavenTransform {
    projectTransform {
       // produce an output file for each pom.xml
       outputPath { context -> "${context.artifactId}.gradle" }
-		  freemarkerTemplate 'project-dependencies.ftl'
+      freemarkerTemplate 'project-dependencies.ftl'
    }
 }
 ```
