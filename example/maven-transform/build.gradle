@@ -19,20 +19,19 @@ mavenTransform {
 		include '*/pom.xml'
 	}
 	outputDirectory "$buildDir/mavenTransform"
-
+	templateClasspath files('src/main/freemarker')
+	
 	projectsTransform {
 		outputPath "settings.gradle"
 		freemarkerTemplate 'settings-projects.ftl'
-		context 'modelCount', { manyContext ->
-			manyContext.projects.size()
+		context 'modelCount', { context ->
+			context.projects.size()
 		}
-		classpath files('src/main/resources')
 	}
 
 	projectTransform {
 		outputPath { singleContext -> "${singleContext.artifactId}.gradle".toString() }
 		freemarkerTemplate 'project-dependencies.ftl'
-		classpath files('src/main/resources')
 	}
 }
 

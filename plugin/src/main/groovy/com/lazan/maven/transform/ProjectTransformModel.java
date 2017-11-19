@@ -1,16 +1,13 @@
 package com.lazan.maven.transform;
 
-import org.gradle.api.file.FileCollection;
-import org.apache.maven.model.Model;
-
-import java.util.Collection;
 import java.util.function.Function;
+
+import org.apache.maven.model.Model;
 
 /**
  * Created by Lance on 11/11/2017.
  */
 public interface ProjectTransformModel {
-    void classpath(FileCollection classpath);
     void outputPath(Function<Model, String> outputFileFunction);
     void freemarkerTemplate(String templatePath);
     void template(Template template);

@@ -1,11 +1,30 @@
 package com.lazan.maven.transform;
 
-import groovy.lang.Closure;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Function;
+
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.Repository;
-import org.apache.maven.model.building.*;
+import org.apache.maven.model.building.DefaultModelBuilder;
+import org.apache.maven.model.building.DefaultModelBuilderFactory;
+import org.apache.maven.model.building.DefaultModelBuildingRequest;
+import org.apache.maven.model.building.ModelBuildingRequest;
+import org.apache.maven.model.building.ModelSource;
 import org.apache.maven.model.resolution.InvalidRepositoryException;
 import org.apache.maven.model.resolution.ModelResolver;
 import org.apache.maven.model.resolution.UnresolvableModelException;
@@ -18,14 +37,12 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.util.ConfigureUtil;
 
-import com.lazan.maven.transform.internal.ProjectsTransformModelImpl;
-import com.lazan.maven.transform.internal.ProjectTransformModelImpl;
 import com.lazan.maven.transform.internal.ProjectContextImpl;
+import com.lazan.maven.transform.internal.ProjectTransformModelImpl;
 import com.lazan.maven.transform.internal.ProjectsContextImpl;
+import com.lazan.maven.transform.internal.ProjectsTransformModelImpl;
 
-import java.io.*;
-import java.util.*;
-import java.util.function.Function;
+import groovy.lang.Closure;
 
 
 public class MavenTransform extends DefaultTask {
@@ -33,8 +50,8 @@ public class MavenTransform extends DefaultTask {
     private List<ProjectTransformModelImpl> projectTransformModels = new ArrayList<>();
     private List<ProjectsTransformModelImpl> projectsTransformModels = new ArrayList<>();
     private File outputDirectory;
-    private List<FileCollection> classpaths = new ArrayList<>();
-
+    private FileCollection templateClasspath;
+    
     public void outputDirectory(Object outputDirectory) {
         this.outputDirectory = getProject().file(outputDirectory);
     }
@@ -57,8 +74,8 @@ public class MavenTransform extends DefaultTask {
     }
     
     @InputFiles
-    public List<FileCollection> getClasspaths() {
-		return classpaths;
+    public FileCollection getTemplateClasspath() {
+		return templateClasspath;
 	}
 
     @OutputDirectory
@@ -70,18 +87,12 @@ public class MavenTransform extends DefaultTask {
         ProjectTransformModelImpl model = new ProjectTransformModelImpl(getProject());
         ConfigureUtil.configure(configureClosure, model);
         projectTransformModels.add(model);
-        if (model.getClasspath() != null) {
-        	classpaths.add(model.getClasspath());
-        }
     }
 
     public void projectsTransform(Closure configureClosure) {
         ProjectsTransformModelImpl model = new ProjectsTransformModelImpl(getProject());
         ConfigureUtil.configure(configureClosure, model);
         projectsTransformModels.add(model);
-        if (model.getClasspath() != null) {
-        	classpaths.add(model.getClasspath());
-        }
     }
 
     @TaskAction
@@ -104,6 +115,7 @@ public class MavenTransform extends DefaultTask {
         }
 
         ProjectsContext projectsContext = new ProjectsContextImpl(projectContexts);
+        ClassLoader templateClassLoader = getTemplateClassLoader();
         for (ProjectsTransformModelImpl model : projectsTransformModels) {
             File outFile = new File(outputDirectory, model.getOutputPath());
             Map<String, Object> templateContext = new LinkedHashMap<>();
@@ -113,7 +125,7 @@ public class MavenTransform extends DefaultTask {
             }
             try (OutputStream out = new FileOutputStream(outFile)) {
                 for (Template template : model.getTemplates()) {
-                    template.transform(templateContext, model.getClassLoader(), out);
+                    template.transform(templateContext, templateClassLoader, out);
                 }
                 out.flush();
                 project.getLogger().lifecycle("Wrote to {}", outFile);
@@ -131,7 +143,7 @@ public class MavenTransform extends DefaultTask {
                 }
                 try (OutputStream out = new FileOutputStream(outFile)) {
                     for (Template template : model.getTemplates()) {
-                        template.transform(templateContext, model.getClassLoader(), out);
+                        template.transform(templateContext, templateClassLoader, out);
                     }
                     out.flush();
                     project.getLogger().lifecycle("Wrote to {}", outFile);
@@ -139,6 +151,25 @@ public class MavenTransform extends DefaultTask {
             }
         }
     }
+    
+    public void templateClasspath(FileCollection templateClasspath) {
+    	this.templateClasspath = templateClasspath;
+    }
+    
+    
+    protected ClassLoader getTemplateClassLoader() {
+        Function<File, URL> toUrl = (File file) -> {
+            try {
+                return file.toURI().toURL();
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
+        };
+        URL[] urls = templateClasspath.getFiles().stream().map(toUrl).toArray(URL[]::new);
+        return new URLClassLoader(urls, null);
+    }
+
+    
 
     protected ModelResolver createModelResolver() {
         return new ModelResolver() {
