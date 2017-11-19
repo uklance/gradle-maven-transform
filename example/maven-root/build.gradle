@@ -3,10 +3,6 @@ def mavenProjects = [
     'project5', 'project6', 'project7', 'project8', 'project9'
 ]
 
-allprojects { p ->
-	println "Project ${p.name} ${p.path}"
-}
-
 mavenProjects.each { projectName ->
 	project(":$projectName") {
 		apply plugin: 'java'
@@ -22,7 +18,7 @@ mavenProjects.each { projectName ->
 		}
 		
 		dependencies {
-			mavenTransform "com.lazan:maven-transform:$version"
+			mavenTransform "com.lazan:example-transform:$version"
 		}
 		
 		File scriptJar = configurations.mavenTransform.singleFile

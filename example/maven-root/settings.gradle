@@ -3,7 +3,7 @@ def mavenProjects = [
     'project5', 'project6', 'project7', 'project8', 'project9'
 ]
 includeBuild '../../plugin'
-includeBuild '../maven-transform'
+includeBuild '../example-transform'
 mavenProjects.each {
     include it
 }
