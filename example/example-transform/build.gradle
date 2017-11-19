@@ -12,7 +12,6 @@ group = 'com.lazan'
 version = file('../../version.txt').text.trim()
 
 apply plugin: 'com.lazan.maven-transform'
-apply plugin: 'java'
 
 mavenTransform {
 	pomXmls fileTree('../maven-root').matching {
@@ -34,14 +33,3 @@ mavenTransform {
 		freemarkerTemplate 'project-dependencies.ftl'
 	}
 }
-
-jar {
-	dependsOn mavenTransform
-	from mavenTransform.outputDirectory
-}
-
-artifacts {
-	archives jar
-}
-
-build.dependsOn jar
