@@ -251,7 +251,7 @@ public class MavenTransform extends DefaultTask {
 
             @Override
             public ModelResolver newCopy() {
-                throw new UnsupportedOperationException("newCopy");
+                return this;
             }
         };
     }

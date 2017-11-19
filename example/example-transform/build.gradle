@@ -11,6 +11,10 @@ buildscript {
 group = 'com.lazan'
 version = file('../../version.txt').text.trim()
 
+repositories {
+	mavenCentral()
+}
+
 apply plugin: 'com.lazan.maven-transform'
 
 mavenTransform {
