@@ -1,6 +1,6 @@
 # gradle-maven-transform [![Build Status](https://travis-ci.org/uklance/gradle-maven-transform.svg?branch=master)](https://travis-ci.org/uklance/gradle-maven-transform)
 
-Dynamically generate Gradle scripts (and more) by transforming Maven pom.xml's
+Dynamically generate Gradle scripts (and more) by transforming Maven pom.xml's. Provides out-of-the-box support for [Freemarker](https://freemarker.apache.org/) templates but custom transforms can be applied via a custom [template](https://github.com/uklance/gradle-maven-transform/blob/master/plugin/src/main/groovy/com/lazan/maven/transform/Template.java)
 
 Sample usage
 
