@@ -12,7 +12,7 @@ dependencies {
 	mavenTransform "com.lazan:example-transform:$version"
 }
 ext {
-	mavenScripts = rootProject.configurations.mavenTransform.singleFile
+	mavenScripts = configurations.mavenTransform.singleFile
 	mavenProjects = [
 	    'project0', 'project1', 'project2', 'project3', 'project4',
 	    'project5', 'project6', 'project7', 'project8', 'project9'
@@ -23,7 +23,7 @@ mavenProjects.each { projectName ->
 	project(":$projectName") {
 		version = rootProject.version
 		apply plugin: 'java'
-		File script = zipTree(mavenScripts).filter { it.name == "${projectName}.gradle" }.singleFile
-		apply from: script
+		File projectScript = zipTree(mavenScripts).filter { it.name == "${projectName}.gradle" }.singleFile
+		apply from: projectScript
 	}
 }
