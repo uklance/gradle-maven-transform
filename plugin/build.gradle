@@ -16,7 +16,9 @@ dependencies {
 	compile gradleApi()
 	compile 'org.freemarker:freemarker:2.3.23'
 	compile 'org.apache.maven:maven-model:3.5.2'
-	compile 'org.apache.maven:maven-model-builder:3.5.2'
+	compile 'org.apache.maven:maven-model-builder:3.5.2'	
+	testCompile 'org.mockito:mockito-all:1.10.19'
+	testCompile 'junit:junit:4.12'
 }
 
 pluginBundle {

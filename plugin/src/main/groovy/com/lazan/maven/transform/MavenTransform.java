@@ -10,6 +10,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,7 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.util.ConfigureUtil;
 
+import com.lazan.maven.transform.internal.DependencyVersionAggregatorImpl;
 import com.lazan.maven.transform.internal.ProjectContextImpl;
 import com.lazan.maven.transform.internal.ProjectTransformModelImpl;
 import com.lazan.maven.transform.internal.ProjectsContextImpl;
@@ -151,12 +153,24 @@ public class MavenTransform extends DefaultTask {
         }
         return projectsContext;    	
     }
+    
+    protected Map<String, Object> defaultProjectsTemplateContext(ProjectsContext projectsContext) {
+    	Map<String, Object> context = new LinkedHashMap<>();
+    	context.put("projectsContext", projectsContext);
+    	context.put("dependencyVersionAggregator", new DependencyVersionAggregatorImpl(projectsContext));
+    	return Collections.unmodifiableMap(context);
+    }
 
+    protected Map<String, Object> defaultProjectTemplateContext(ProjectContext projectContext) {
+    	Map<String, Object> context = new LinkedHashMap<>();
+    	context.put("projectContext", projectContext);
+    	context.putAll(defaultProjectsTemplateContext(projectContext.getProjectsContext()));
+    	return Collections.unmodifiableMap(context);
+    }
+    
 	protected void applyProjectTransforms(ProjectsContext projectsContext, ClassLoader templateClassLoader) throws Exception {
 		for (ProjectContext projectContext : projectsContext.getProjectContexts()) {
-            Map<String, Object> templateContext = new LinkedHashMap<>();
-            templateContext.put("projectsContext", projectsContext);
-            templateContext.put("projectContext", projectContext);
+            Map<String, Object> templateContext = new LinkedHashMap<>(defaultProjectTemplateContext(projectContext));
             for (ProjectTransformModelImpl model : projectTransformModels) {
                 String path = model.getOutputPathFunction().apply(projectContext.getProject()).toString();
                 File outFile = new File(outputDirectory, path);
@@ -177,8 +191,7 @@ public class MavenTransform extends DefaultTask {
 	protected void applyProjectsTransforms(ProjectsContext projectsContext, ClassLoader templateClassLoader) throws Exception {
 		for (ProjectsTransformModelImpl model : projectsTransformModels) {
             File outFile = new File(outputDirectory, model.getOutputPath());
-            Map<String, Object> templateContext = new LinkedHashMap<>();
-            templateContext.put("projectsContext", projectsContext);
+            Map<String, Object> templateContext = new LinkedHashMap<>(defaultProjectsTemplateContext(projectsContext));
             for (Map.Entry<String, Function<ProjectsContext, Object>> entry : model.getContextFunctions().entrySet()) {
                 templateContext.put(entry.getKey(), entry.getValue().apply(projectsContext));
             }
