@@ -127,13 +127,13 @@ public class MavenTransform extends DefaultTask {
     @TaskAction
     public void mavenTransform() throws Exception {
     	AtomicReference<Map<String, Object>> transformContextReference = new AtomicReference<>();
-        ProjectsContextImpl projectsContext = createProjectsContext(transformContextReference);
+        ProjectsContext projectsContext = createProjectsContext(transformContextReference);
         ClassLoader transformClassLoader = getTransformerClassLoader();
         applyProjectsTransforms(projectsContext, transformClassLoader, transformContextReference);
         applyProjectTransforms(projectsContext, transformClassLoader, transformContextReference);
     }
 
-    protected ProjectsContextImpl createProjectsContext(AtomicReference<Map<String, Object>> transformContextReference) throws Exception {
+    protected ProjectsContext createProjectsContext(AtomicReference<Map<String, Object>> transformContextReference) throws Exception {
         DefaultModelBuilderFactory factory = new DefaultModelBuilderFactory();
         DefaultModelBuilder builder = factory.newInstance();
         List<ProjectContextImpl> projectContexts = new ArrayList<>();
@@ -149,7 +149,7 @@ public class MavenTransform extends DefaultTask {
             projectContexts.add(new ProjectContextImpl(pomXml, effectivePom, transformContextReference));
         }
 
-        ProjectsContextImpl projectsContext = new ProjectsContextImpl(projectContexts, transformContextReference);
+        ProjectsContext projectsContext = new ProjectsContextImpl(projectContexts, transformContextReference);
         for (ProjectContextImpl projectContext : projectContexts) {
         	projectContext.setProjectsContext(projectsContext);
         }
@@ -193,7 +193,7 @@ public class MavenTransform extends DefaultTask {
         }
 	}
 
-	protected void applyProjectsTransforms(ProjectsContextImpl projectsContext, ClassLoader transformClassLoader, AtomicReference<Map<String, Object>> transformContextReference) throws Exception {
+	protected void applyProjectsTransforms(ProjectsContext projectsContext, ClassLoader transformClassLoader, AtomicReference<Map<String, Object>> transformContextReference) throws Exception {
 		for (ProjectsTransformModelImpl model : projectsTransformModels) {
             Map<String, Object> transformContext = new LinkedHashMap<>(defaultProjectsTransformerContext(projectsContext));
             for (Map.Entry<String, Function<ProjectsContext, Object>> entry : model.getContextFunctions().entrySet()) {
@@ -227,7 +227,7 @@ public class MavenTransform extends DefaultTask {
 
     protected ModelResolver createModelResolver() {
         return new ModelResolver() {
-            @Override
+			@Override
             public ModelSource resolveModel(String groupId, String artifactId, String version) throws UnresolvableModelException {
                 String configName = String.format("pomTransform%s", UUID.randomUUID());
                 Configuration config = getProject().getConfigurations().create(configName);
