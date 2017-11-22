@@ -15,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
 import org.apache.maven.model.Dependency;
@@ -52,7 +53,7 @@ public class MavenTransform extends DefaultTask {
     private List<ProjectTransformModelImpl> projectTransformModels = new ArrayList<>();
     private List<ProjectsTransformModelImpl> projectsTransformModels = new ArrayList<>();
     private File outputDirectory;
-    private FileCollection templateClasspath;
+    private FileCollection transformClasspath;
     
     public void outputDirectory(Object outputDirectory) {
         this.outputDirectory = getProject().file(outputDirectory);
@@ -70,8 +71,8 @@ public class MavenTransform extends DefaultTask {
         }
     }
 
-    public void templateClasspath(FileCollection templateClasspath) {
-    	this.templateClasspath = templateClasspath;
+    public void transformClasspath(FileCollection transformClasspath) {
+    	this.transformClasspath = transformClasspath;
     }
     
     @InputFiles
@@ -80,18 +81,18 @@ public class MavenTransform extends DefaultTask {
     }
     
     @InputFiles
-    public FileCollection getTemplateFiles() {
+    public FileCollection getTransformerFiles() {
     	Project project = getProject();
-    	FileCollection templateFiles = project.files();
-    	for (File file : templateClasspath.getFiles()) {
+    	FileCollection transformerFiles = project.files();
+    	for (File file : transformClasspath.getFiles()) {
     		if (file.isDirectory()) {
-    			// add all files in the directory so the task is dirty if any template files change
-    			templateFiles = templateFiles.plus(project.fileTree(file));
+    			// add all files in the directory so the task is dirty if any transformer files change
+    			transformerFiles = transformerFiles.plus(project.fileTree(file));
     		} else {
-    			templateFiles = templateFiles.plus(project.files(file));
+    			transformerFiles = transformerFiles.plus(project.files(file));
     		}
     	}
-		return templateFiles;
+		return transformerFiles;
 	}
 
     @OutputDirectory
@@ -125,13 +126,14 @@ public class MavenTransform extends DefaultTask {
     
     @TaskAction
     public void mavenTransform() throws Exception {
-        ProjectsContext projectsContext = createProjectsContext();
-        ClassLoader templateClassLoader = getTemplateClassLoader();
-        applyProjectsTransforms(projectsContext, templateClassLoader);
-        applyProjectTransforms(projectsContext, templateClassLoader);
+    	AtomicReference<Map<String, Object>> transformContextReference = new AtomicReference<>();
+        ProjectsContextImpl projectsContext = createProjectsContext(transformContextReference);
+        ClassLoader transformClassLoader = getTransformerClassLoader();
+        applyProjectsTransforms(projectsContext, transformClassLoader, transformContextReference);
+        applyProjectTransforms(projectsContext, transformClassLoader, transformContextReference);
     }
 
-    protected ProjectsContext createProjectsContext() throws Exception {
+    protected ProjectsContextImpl createProjectsContext(AtomicReference<Map<String, Object>> transformContextReference) throws Exception {
         DefaultModelBuilderFactory factory = new DefaultModelBuilderFactory();
         DefaultModelBuilder builder = factory.newInstance();
         List<ProjectContextImpl> projectContexts = new ArrayList<>();
@@ -144,68 +146,74 @@ public class MavenTransform extends DefaultTask {
 
             Model effectivePom = builder.build(req).getEffectiveModel();
             
-            projectContexts.add(new ProjectContextImpl(pomXml, effectivePom));
+            projectContexts.add(new ProjectContextImpl(pomXml, effectivePom, transformContextReference));
         }
 
-        ProjectsContext projectsContext = new ProjectsContextImpl(projectContexts);
+        ProjectsContextImpl projectsContext = new ProjectsContextImpl(projectContexts, transformContextReference);
         for (ProjectContextImpl projectContext : projectContexts) {
         	projectContext.setProjectsContext(projectsContext);
         }
         return projectsContext;    	
     }
     
-    protected Map<String, Object> defaultProjectsTemplateContext(ProjectsContext projectsContext) {
+    protected Map<String, Object> defaultProjectsTransformerContext(ProjectsContext projectsContext) {
     	Map<String, Object> context = new LinkedHashMap<>();
     	context.put("projectsContext", projectsContext);
     	context.put("dependencyVersionAggregator", new DependencyVersionAggregatorImpl(projectsContext));
     	return Collections.unmodifiableMap(context);
     }
 
-    protected Map<String, Object> defaultProjectTemplateContext(ProjectContext projectContext) {
+    protected Map<String, Object> defaultProjectTransformerContext(ProjectContext projectContext) {
     	Map<String, Object> context = new LinkedHashMap<>();
     	context.put("projectContext", projectContext);
-    	context.putAll(defaultProjectsTemplateContext(projectContext.getProjectsContext()));
+    	context.putAll(defaultProjectsTransformerContext(projectContext.getProjectsContext()));
     	return Collections.unmodifiableMap(context);
     }
     
-	protected void applyProjectTransforms(ProjectsContext projectsContext, ClassLoader templateClassLoader) throws Exception {
+	protected void applyProjectTransforms(ProjectsContext projectsContext, ClassLoader transformClassLoader, AtomicReference<Map<String, Object>> transformContextReference) throws Exception {
 		for (ProjectContext projectContext : projectsContext.getProjectContexts()) {
-            Map<String, Object> templateContext = new LinkedHashMap<>(defaultProjectTemplateContext(projectContext));
             for (ProjectTransformModelImpl model : projectTransformModels) {
                 String path = model.getOutputPathFunction().apply(projectContext.getProject()).toString();
                 File outFile = new File(outputDirectory, path);
+                Map<String, Object> transformContext = new LinkedHashMap<>(defaultProjectTransformerContext(projectContext));
                 for (Map.Entry<String, Function<ProjectContext, Object>> entry : model.getContextFunctions().entrySet()) {
-                    templateContext.put(entry.getKey(), entry.getValue().apply(projectContext));
+                    transformContext.put(entry.getKey(), entry.getValue().apply(projectContext));
                 }
                 try (OutputStream out = new FileOutputStream(outFile)) {
-                    for (Template template : model.getTemplates()) {
-                        template.transform(templateContext, templateClassLoader, out);
+                	transformContextReference.set(Collections.unmodifiableMap(transformContext));
+                    for (Transformer transformer : model.getTransformers()) {
+                        transformer.transform(transformContext, transformClassLoader, out);
                     }
                     out.flush();
                     getProject().getLogger().lifecycle("Wrote to {}", outFile);
+                } finally {
+                	transformContextReference.set(null);
                 }
             }
         }
 	}
 
-	protected void applyProjectsTransforms(ProjectsContext projectsContext, ClassLoader templateClassLoader) throws Exception {
+	protected void applyProjectsTransforms(ProjectsContextImpl projectsContext, ClassLoader transformClassLoader, AtomicReference<Map<String, Object>> transformContextReference) throws Exception {
 		for (ProjectsTransformModelImpl model : projectsTransformModels) {
-            File outFile = new File(outputDirectory, model.getOutputPath());
-            Map<String, Object> templateContext = new LinkedHashMap<>(defaultProjectsTemplateContext(projectsContext));
+            Map<String, Object> transformContext = new LinkedHashMap<>(defaultProjectsTransformerContext(projectsContext));
             for (Map.Entry<String, Function<ProjectsContext, Object>> entry : model.getContextFunctions().entrySet()) {
-                templateContext.put(entry.getKey(), entry.getValue().apply(projectsContext));
+                transformContext.put(entry.getKey(), entry.getValue().apply(projectsContext));
             }
+            File outFile = new File(outputDirectory, model.getOutputPath());
             try (OutputStream out = new FileOutputStream(outFile)) {
-                for (Template template : model.getTemplates()) {
-                    template.transform(templateContext, templateClassLoader, out);
+            	transformContextReference.set(Collections.unmodifiableMap(transformContext));
+                for (Transformer transformer : model.getTransformers()) {
+                    transformer.transform(transformContext, transformClassLoader, out);
                 }
                 out.flush();
                 getProject().getLogger().lifecycle("Wrote to {}", outFile);
+            } finally {
+            	transformContextReference.set(null);
             }
         }
 	}
     
-    protected ClassLoader getTemplateClassLoader() {
+    protected ClassLoader getTransformerClassLoader() {
         Function<File, URL> toUrl = (File file) -> {
             try {
                 return file.toURI().toURL();
@@ -213,7 +221,7 @@ public class MavenTransform extends DefaultTask {
                 throw new RuntimeException(e);
             }
         };
-        URL[] urls = templateClasspath.getFiles().stream().map(toUrl).toArray(URL[]::new);
+        URL[] urls = transformClasspath.getFiles().stream().map(toUrl).toArray(URL[]::new);
         return new URLClassLoader(urls, null);
     }
 

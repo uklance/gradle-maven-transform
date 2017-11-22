@@ -1,6 +1,7 @@
 package com.lazan.maven.transform;
 
 import java.io.File;
+import java.util.Map;
 
 import org.apache.maven.model.Model;
 
@@ -16,4 +17,5 @@ public interface ProjectContext {
     String getProjectPath();
     String getGav();
     ProjectsContext getProjectsContext();
+    Map<String, Object> getTransformContext();
 }

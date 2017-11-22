@@ -22,23 +22,23 @@ mavenTransform {
 		include '*/pom.xml'
 	}
 	outputDirectory "$buildDir/mavenTransform"
-	templateClasspath files('src/main/freemarker')
+	transformClasspath files('src/main/freemarker')
 	
 	projectsTransform {
 		outputPath "settings.gradle"
-		freemarkerTemplate 'settings-projects.ftl'
+		freemarkerTransform 'settings-projects.ftl'
 		context 'modelCount', { context ->
-			context.projects.size()
+			return context.projects.size()
 		}
 	}
 	
 	projectsTransform {
 		outputPath "root.gradle"
-		freemarkerTemplate 'root-project-common-versions.ftl'
+		freemarkerTransform 'root-project-common-versions.ftl'
 	}
 
 	projectTransform {
 		outputPath { context -> "${context.artifactId}.gradle" }
-		freemarkerTemplate 'project-dependencies.ftl'
+		freemarkerTransform 'project-dependencies.ftl'
 	}
 }

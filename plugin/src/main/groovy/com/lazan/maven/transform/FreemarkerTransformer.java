@@ -12,9 +12,9 @@ import freemarker.template.Configuration;
 /**
  * Created by Lance on 11/11/2017.
  */
-public class FreemarkerTemplate implements Template {
+public class FreemarkerTransformer implements Transformer {
     private final String templatePath;
-    public FreemarkerTemplate(String templatePath) {
+    public FreemarkerTransformer(String templatePath) {
         this.templatePath = templatePath;
     }
 

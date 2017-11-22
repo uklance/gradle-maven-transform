@@ -1,6 +1,7 @@
 package com.lazan.maven.transform;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
@@ -14,4 +15,5 @@ public interface ProjectsContext {
     ProjectContext getProjectContext(Dependency dependency);
     Model getProject(Dependency dependency);
     Collection<Model> getProjects();
+    Map<String, Object> getTransformContext();
 }

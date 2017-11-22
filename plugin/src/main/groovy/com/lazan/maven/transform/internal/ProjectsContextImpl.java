@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import org.apache.maven.model.Dependency;
@@ -19,8 +20,9 @@ import com.lazan.maven.transform.ProjectsContext;
 public class ProjectsContextImpl implements ProjectsContext {
 	private final Map<String, ProjectContext> projectContextMap;
 	private final List<Model> projects;
+	private final AtomicReference<Map<String, Object>> transformContextReference;
 
-	public ProjectsContextImpl(Collection<? extends ProjectContext> projectContexts) {
+	public ProjectsContextImpl(Collection<? extends ProjectContext> projectContexts, AtomicReference<Map<String, Object>> transformContextReference) {
 		super();
 		Map<String, ProjectContext> map = new LinkedHashMap<>();
 		for (ProjectContext projectContext : projectContexts) {
@@ -32,6 +34,7 @@ public class ProjectsContextImpl implements ProjectsContext {
 		}
 		projectContextMap = Collections.unmodifiableMap(map);
 		projects = projectContexts.stream().map(ProjectContext::getProject).collect(Collectors.toList());
+		this.transformContextReference = transformContextReference;
 	}
 	
 	@Override
@@ -66,4 +69,13 @@ public class ProjectsContextImpl implements ProjectsContext {
 	protected String getGav(Dependency dependency) {
 		return String.format("%s:%s:%s", dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion());
 	}
+	
+    @Override
+    public Map<String, Object> getTransformContext() {
+    	Map<String, Object> transformContext = transformContextReference.get();
+    	if (transformContext == null) {
+    		throw new IllegalStateException("transformContext not ready, please wait until all context entries initialized");
+    	}
+    	return transformContext;
+    }
 }

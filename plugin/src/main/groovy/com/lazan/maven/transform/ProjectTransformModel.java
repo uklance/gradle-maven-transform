@@ -9,7 +9,7 @@ import org.apache.maven.model.Model;
  */
 public interface ProjectTransformModel {
     void outputPath(Function<Model, CharSequence> outputFileFunction);
-    void freemarkerTemplate(String templatePath);
-    void template(Template template);
+    void freemarkerTransform(String templatePath);
+    void transform(Transformer transformer);
     void context(String contextKey, Function<ProjectContext, Object> contextFunction);
 }

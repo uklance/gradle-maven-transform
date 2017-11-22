@@ -1,6 +1,8 @@
 package com.lazan.maven.transform.internal;
 
 import java.io.File;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.maven.model.Model;
 
@@ -14,13 +16,15 @@ public class ProjectContextImpl implements ProjectContext {
     private final File pomXml;
     private final Model project;
     private final String gav;
+	private final AtomicReference<Map<String, Object>> transformContextReference;
 	private ProjectsContext projectsContext;
     
-    public ProjectContextImpl(File pomXml, Model project) {
+    public ProjectContextImpl(File pomXml, Model project, AtomicReference<Map<String, Object>> transformContextReference) {
 		super();
 		this.pomXml = pomXml;
 		this.project = project;
 		this.gav = String.format("%s:%s:%s", project.getGroupId(), project.getArtifactId(), project.getVersion());
+		this.transformContextReference = transformContextReference;
 	}
 
 	@Override
@@ -69,4 +73,13 @@ public class ProjectContextImpl implements ProjectContext {
 	public ProjectsContext getProjectsContext() {
 		return projectsContext;
 	}
+    
+    @Override
+    public Map<String, Object> getTransformContext() {
+    	Map<String, Object> transformContext = transformContextReference.get();
+    	if (transformContext == null) {
+    		throw new IllegalStateException("transformContext not ready, please wait until all context entries initialized");
+    	}
+    	return transformContext;
+    }
 }

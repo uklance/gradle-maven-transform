@@ -8,10 +8,10 @@ import java.util.function.Function;
 
 import org.gradle.api.Project;
 
-import com.lazan.maven.transform.FreemarkerTemplate;
+import com.lazan.maven.transform.FreemarkerTransformer;
 import com.lazan.maven.transform.ProjectsContext;
 import com.lazan.maven.transform.ProjectsTransformModel;
-import com.lazan.maven.transform.Template;
+import com.lazan.maven.transform.Transformer;
 
 /**
  * Created by Lance on 11/11/2017.
@@ -19,7 +19,7 @@ import com.lazan.maven.transform.Template;
 public class ProjectsTransformModelImpl implements ProjectsTransformModel {
     private final Project project;
     private String outputPath;
-    private List<Template> templates = new ArrayList<>();
+    private List<Transformer> transformers = new ArrayList<>();
     private Map<String, Function<ProjectsContext, Object>> contextFunctions = new LinkedHashMap<>();
 
     public ProjectsTransformModelImpl(Project project) {
@@ -32,13 +32,13 @@ public class ProjectsTransformModelImpl implements ProjectsTransformModel {
     }
 
     @Override
-    public void freemarkerTemplate(String templatePath) {
-        template(new FreemarkerTemplate(templatePath));
+    public void freemarkerTransform(String templatePath) {
+        transform(new FreemarkerTransformer(templatePath));
     }
 
     @Override
-    public void template(Template template) {
-        templates.add(template);
+    public void transform(Transformer transformer) {
+        transformers.add(transformer);
     }
 
     @Override
@@ -50,8 +50,8 @@ public class ProjectsTransformModelImpl implements ProjectsTransformModel {
         return outputPath;
     }
 
-    public List<Template> getTemplates() {
-        return templates;
+    public List<Transformer> getTransformers() {
+        return transformers;
     }
 
     public Map<String, Function<ProjectsContext, Object>> getContextFunctions() {
