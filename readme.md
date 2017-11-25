@@ -6,7 +6,7 @@ This plugin allows you to transform Maven `pom.xml` files during your build. A t
 
 ## How does it work?
 
-The `gradle-maven-transform` plugin uses the [Maven ModelBuilder API](https://maven.apache.org/ref/3.5.2/maven-model-builder/apidocs/org/apache/maven/model/building/ModelBuilder.html) to read `pom.xml` files and generate an [Effective Model](https://maven.apache.org/ref/3.5.2/maven-model-builder/apidocs/org/apache/maven/model/building/ModelBuildingResult.html#getEffectiveModel--) from it. The Effective Model is then passed to the [Transformers](https://github.com/uklance/gradle-maven-transform/blob/master/plugin/src/main/groovy/com/lazan/maven/transform/Transformer.java) specified in a Gradle build.
+The `gradle-maven-transform` plugin uses the [Maven ModelBuilder API](https://maven.apache.org/ref/3.5.2/maven-model-builder/apidocs/org/apache/maven/model/building/ModelBuilder.html) to read `pom.xml` files and generate an [Effective Model](https://maven.apache.org/ref/3.5.2/maven-model-builder/apidocs/org/apache/maven/model/building/ModelBuildingResult.html#getEffectiveModel--) which is a denormalized form of the model with property substitutions applied and versions populated from `<dependencyManagement>`. The Effective Model is then passed to the [Transformers](https://github.com/uklance/gradle-maven-transform/blob/master/plugin/src/main/groovy/com/lazan/maven/transform/Transformer.java) specified in a Gradle build.
 
 ## What Transformers are available?
 
