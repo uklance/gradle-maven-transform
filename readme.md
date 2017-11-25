@@ -40,7 +40,7 @@ Configuring a `projectTransform { ... }` will generate a separate file for each 
 
 ```groovy
 plugins {
-   id "com.lazan.maven-transform" version "0.1"
+   id "com.lazan.maven-transform" version "0.3"
 }
 mavenTransform {
    pomXmls 'path1/pom.xml', 'path2/pom.xml', 'path3/pom.xml'
