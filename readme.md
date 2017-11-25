@@ -45,7 +45,7 @@ plugins {
 mavenTransform {
    pomXmls 'path1/pom.xml', 'path2/pom.xml', 'path3/pom.xml'
    outputDirectory "$buildDir/mavenTransform"
-   templateClasspath files('src/main/freemarker')
+   transformClasspath files('src/main/freemarker')
    
    projectsTransform {
       // produce a single output file for all pom.xmls
