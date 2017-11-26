@@ -2,43 +2,35 @@ buildscript {
 	repositories {
 		mavenCentral()
 	}
-	def pluginVersion = file('../../version.txt').text.trim()
+	def pluginVersion = file("../../version.txt").text.trim()
 	dependencies {
 		classpath "com.lazan:gradle-maven-transform:$pluginVersion"
 	}
 }
 
-group = 'com.lazan'
-version = file('../../version.txt').text.trim()
+group = "com.lazan"
+version = file("../../version.txt").text.trim()
 
 repositories {
 	mavenCentral()
 }
 
-apply plugin: 'com.lazan.maven-transform'
+apply plugin: "com.lazan.maven-transform"
 
 mavenTransform {
-	pomXmls fileTree('../maven-root').matching {
-		include '*/pom.xml'
+	pomXmls fileTree("../maven-root").matching {
+		include "*/pom.xml"
 	}
 	outputDirectory "$buildDir/mavenTransform"
-	transformClasspath files('src/main/freemarker')
+	transformClasspath files("src/main/freemarker")
 	
 	projectsTransform {
-		outputPath "settings.gradle"
-		freemarkerTransform 'settings-projects.ftl'
-		context 'modelCount', { context ->
-			return context.projects.size()
-		}
-	}
-	
-	projectsTransform {
-		outputPath "root.gradle"
-		freemarkerTransform 'root-project-common-versions.ftl'
+		outputPath "root-project.gradle"
+		freemarkerTransform "root-project.ftl"
 	}
 
 	projectTransform {
 		outputPath { context -> "${context.artifactId}.gradle" }
-		freemarkerTransform 'project-dependencies.ftl'
+		freemarkerTransform "subproject.ftl"
 	}
 }
