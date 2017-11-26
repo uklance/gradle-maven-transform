@@ -86,4 +86,28 @@ public class DependencyAggregatorImpl implements DependencyAggregator {
 		}
 		return gavs;
 	}
+	
+	@Override
+	public String getCommonDependencyVersionName(String groupId, String artifactId) {
+		StringBuilder builder = new StringBuilder();
+		boolean nextUpper = false;
+		for (int i = 0; i < artifactId.length(); ++i) {
+			char ch = artifactId.charAt(i);
+			boolean validChar = Character.isLetter(ch);
+			if (!validChar && builder.length() > 0) {
+				validChar = Character.isDigit(ch);
+			}
+			if (!validChar) {
+				nextUpper = true;
+				continue;
+			}
+			if (nextUpper) {
+				builder.append(Character.toUpperCase(ch));
+				nextUpper = false;
+			} else {
+				builder.append(ch);
+			}
+		}
+		return builder.toString();
+	}
 }

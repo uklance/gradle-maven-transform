@@ -29,7 +29,7 @@ public class DependencyAggregatorImplTest {
 	private ProjectsContext projectsContext;
 	
 	@Test
-	public void test() {
+	public void testAggregator() {
 		Model model1 = new Model();
 		List<Dependency> dependencies1 = new ArrayList<>();
 		dependencies1.add(createDependency("group", "artifact1", "1"));
@@ -66,6 +66,8 @@ public class DependencyAggregatorImplTest {
 		
 		Set<String> expectedGavs = new LinkedHashSet<>(Arrays.asList("group:artifact1:1", "group:artifact3:3"));
 		assertEquals(expectedGavs, gavs);
+		
+		assertEquals("fooBar", aggregator.getCommonDependencyVersionName("xxx", "foo-bar"));
 	}
 
 	private Dependency createDependency(String group, String artifact, String version) {
