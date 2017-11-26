@@ -6,6 +6,8 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Map;
 
+import org.gradle.api.Project;
+
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
 
@@ -14,7 +16,9 @@ import freemarker.template.Configuration;
  */
 public class FreemarkerTransformer implements Transformer {
     private final String templatePath;
-    public FreemarkerTransformer(String templatePath) {
+    private final Project project;
+    public FreemarkerTransformer(Project project, String templatePath) {
+    	this.project = project;
         this.templatePath = templatePath;
     }
 
@@ -28,6 +32,7 @@ public class FreemarkerTransformer implements Transformer {
             template.process(context, writer);
             writer.flush();
         } catch (Exception e) {
+        	project.getLogger().error("Error processing " + templatePath);
             throw new RuntimeException("Error processing " + templatePath, e);
         }
     }

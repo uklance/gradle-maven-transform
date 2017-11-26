@@ -19,12 +19,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.lazan.maven.transform.DependencyVersionAggregator;
+import com.lazan.maven.transform.DependencyAggregator;
 import com.lazan.maven.transform.GroupArtifactVersion;
 import com.lazan.maven.transform.ProjectsContext;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DependencyVersionAggregatorImplTest {
+public class DependencyAggregatorImplTest {
 	@Mock
 	private ProjectsContext projectsContext;
 	
@@ -50,7 +50,7 @@ public class DependencyVersionAggregatorImplTest {
 		model3.setDependencies(dependencies3);
 		
 		when(projectsContext.getProjects()).thenReturn(Arrays.asList(model1, model2, model3));
-		DependencyVersionAggregator aggregator = new DependencyVersionAggregatorImpl(projectsContext);
+		DependencyAggregator aggregator = new DependencyAggregatorImpl(projectsContext);
 
 		assertTrue(aggregator.isCommonDependencyVersion("group", "artifact1"));
 		assertFalse(aggregator.isCommonDependencyVersion("group", "artifact2"));

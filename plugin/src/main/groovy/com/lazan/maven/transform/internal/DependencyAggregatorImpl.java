@@ -11,14 +11,14 @@ import java.util.Set;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 
-import com.lazan.maven.transform.DependencyVersionAggregator;
+import com.lazan.maven.transform.DependencyAggregator;
 import com.lazan.maven.transform.GroupArtifactVersion;
 import com.lazan.maven.transform.ProjectsContext;
 
-public class DependencyVersionAggregatorImpl implements DependencyVersionAggregator {
+public class DependencyAggregatorImpl implements DependencyAggregator {
 	private final Map<String, Set<String>> gavMap;
 	
-	public DependencyVersionAggregatorImpl(ProjectsContext projectsContext) {
+	public DependencyAggregatorImpl(ProjectsContext projectsContext) {
 		gavMap = new LinkedHashMap<>();
 		for (Model project : projectsContext.getProjects()) {
 			for (Dependency dep : project.getDependencies()) {

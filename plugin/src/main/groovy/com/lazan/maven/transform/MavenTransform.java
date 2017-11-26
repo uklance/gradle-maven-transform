@@ -28,7 +28,7 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.util.ConfigureUtil;
 
-import com.lazan.maven.transform.internal.DependencyVersionAggregatorImpl;
+import com.lazan.maven.transform.internal.DependencyAggregatorImpl;
 import com.lazan.maven.transform.internal.ModelResolverImpl;
 import com.lazan.maven.transform.internal.ProjectContextImpl;
 import com.lazan.maven.transform.internal.ProjectTransformModelImpl;
@@ -150,7 +150,7 @@ public class MavenTransform extends DefaultTask {
     protected Map<String, Object> defaultProjectsTransformerContext(ProjectsContext projectsContext) {
     	Map<String, Object> context = new LinkedHashMap<>();
     	context.put("projectsContext", projectsContext);
-    	context.put("dependencyVersionAggregator", new DependencyVersionAggregatorImpl(projectsContext));
+    	context.put("dependencyAggregator", new DependencyAggregatorImpl(projectsContext));
     	return Collections.unmodifiableMap(context);
     }
 

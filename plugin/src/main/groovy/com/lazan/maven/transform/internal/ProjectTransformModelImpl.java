@@ -31,7 +31,7 @@ public class ProjectTransformModelImpl implements ProjectTransformModel {
 
     @Override
     public void freemarkerTransform(String templatePath) {
-        transform(new FreemarkerTransformer(templatePath));
+        transform(new FreemarkerTransformer(project, templatePath));
     }
 
     @Override
