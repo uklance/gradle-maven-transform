@@ -11,7 +11,7 @@ before_install:
 - chmod +x gradlew
 
 install:
-- ./gradlew assemble --stacktrace
+- ./gradlew assemble --stacktrace --console=plain
 
 script:
-- ./gradlew check --stacktrace
+- ./gradlew check --stacktrace --console=plain
