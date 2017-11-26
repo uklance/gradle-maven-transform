@@ -8,6 +8,10 @@ This plugin allows you to transform Maven `pom.xml` files during your build. A t
 
 The `gradle-maven-transform` plugin uses the [Maven ModelBuilder API](https://maven.apache.org/ref/3.5.2/maven-model-builder/apidocs/org/apache/maven/model/building/ModelBuilder.html) to read `pom.xml` files and generate an [Effective Model](https://maven.apache.org/ref/3.5.2/maven-model-builder/apidocs/org/apache/maven/model/building/ModelBuildingResult.html#getEffectiveModel--) which is a denormalized form of the model with property substitutions applied and versions populated from `<dependencyManagement>`. The Effective Model is then passed to the [Transformers](https://github.com/uklance/gradle-maven-transform/blob/master/plugin/src/main/groovy/com/lazan/maven/transform/Transformer.java) specified in a Gradle build.
 
+## Is there an example?
+
+Sure, there's a sample multi-module Maven build [here](https://github.com/uklance/gradle-maven-transform/tree/master/example/maven-root). The `pom.xml` files from the Maven build are transformed by the [example-transform](https://github.com/uklance/gradle-maven-transform/tree/master/example/example-transform) project. The generated Gradle scripts are applied in the `build.gradle` [here](https://github.com/uklance/gradle-maven-transform/blob/master/example/maven-root/build.gradle). So it's possible to build [maven-root](https://github.com/uklance/gradle-maven-transform/tree/master/example/maven-root) with both Maven and Gradle.
+
 ## What Transformers are available?
 
 There's out-of-the-box support for [Freemarker](https://freemarker.apache.org/) transformations which should suit most use cases. Users can implement their own custom transformations by implementing [Transformer](https://github.com/uklance/gradle-maven-transform/blob/master/plugin/src/main/groovy/com/lazan/maven/transform/Transformer.java)
