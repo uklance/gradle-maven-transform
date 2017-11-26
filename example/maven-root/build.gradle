@@ -27,3 +27,8 @@ mavenProjects.each { projectName ->
 		apply from: projectScript
 	}
 }
+
+task clean {
+	dependsOn gradle.includedBuilds*.task(':clean')
+	dependsOn subprojects*.tasks*.getByName('clean')
+}

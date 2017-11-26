@@ -30,7 +30,7 @@ public class ModelResolverImpl implements ModelResolver {
 
 	@Override
     public ModelSource resolveModel(String groupId, String artifactId, String version) throws UnresolvableModelException {
-        String configName = String.format("pomTransform%s", UUID.randomUUID());
+        String configName = String.format("mavenTransform%s", UUID.randomUUID());
         Configuration config = project.getConfigurations().create(configName);
         config.setTransitive(false);
         String depNotation = String.format("%s:%s:%s@pom", groupId, artifactId, version);
