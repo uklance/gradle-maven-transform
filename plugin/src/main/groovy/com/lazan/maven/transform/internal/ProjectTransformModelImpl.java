@@ -14,8 +14,6 @@ import com.lazan.maven.transform.ProjectContext;
 import com.lazan.maven.transform.ProjectTransformModel;
 import com.lazan.maven.transform.Transformer;
 
-import freemarker.template.Template;
-
 public class ProjectTransformModelImpl implements ProjectTransformModel {
     private final Project project;
     private Function<Model, CharSequence> outputPathFunction;
