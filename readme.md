@@ -23,7 +23,7 @@ Confguring a `projectsTransform { ... }` will generate a single file for all the
 | Name             | Type         |
 |------------------|--------------|
 | projectsContext   | [ProjectsContext](https://github.com/uklance/gradle-maven-transform/blob/master/plugin/src/main/groovy/com/lazan/maven/transform/ProjectsContext.java)|
-| dependencyVersionAggregator | [DependencyVersionAggregator](https://github.com/uklance/gradle-maven-transform/blob/master/plugin/src/main/groovy/com/lazan/maven/transform/DependencyVersionAggregator.java)
+| dependencyAggregator | [DependencyAggregator](https://github.com/uklance/gradle-maven-transform/blob/master/plugin/src/main/groovy/com/lazan/maven/transform/DependencyAggregator.java)
 
 
 ## Project Transform
@@ -34,7 +34,7 @@ Configuring a `projectTransform { ... }` will generate a separate file for each 
 |------------------|--------------|
 | projectContext   | [ProjectContext](https://github.com/uklance/gradle-maven-transform/blob/master/plugin/src/main/groovy/com/lazan/maven/transform/ProjectContext.java)|
 | projectsContext   | [ProjectsContext](https://github.com/uklance/gradle-maven-transform/blob/master/plugin/src/main/groovy/com/lazan/maven/transform/ProjectsContext.java)|
-| dependencyVersionAggregator | [DependencyVersionAggregator](https://github.com/uklance/gradle-maven-transform/blob/master/plugin/src/main/groovy/com/lazan/maven/transform/DependencyVersionAggregator.java)
+| dependencyAggregator | [DependencyAggregator](https://github.com/uklance/gradle-maven-transform/blob/master/plugin/src/main/groovy/com/lazan/maven/transform/DependencyAggregator.java)
 
 ### Sample usage
 
