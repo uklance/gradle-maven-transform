@@ -1,7 +1,8 @@
 package com.lazan.maven.transform;
 
-public interface GroupArtifactVersion {
+public interface AggregatedDependency {
 	String getGroupId();
 	String getArtifactId();
 	String getVersion();
+	String getVariableName();
 }
