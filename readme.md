@@ -6,7 +6,7 @@ This plugin allows you to transform Maven `pom.xml` files during your build. A t
 
 ## How does it work?
 
-The `gradle-maven-transform` plugin uses the [Maven ModelBuilder API](https://maven.apache.org/ref/3.5.2/maven-model-builder/apidocs/org/apache/maven/model/building/ModelBuilder.html) to read `pom.xml` files and generate an [Effective POM](http://maven.apache.org/plugins/maven-help-plugin/usage.html#The_help:effective-pom_Goal) for each which are then passed to the [Transformers](https://github.com/uklance/gradle-maven-transform/blob/master/plugin/src/main/groovy/com/lazan/maven/transform/Transformer.java) specified in the Gradle build. The `Effective POM` is a "denormalized" view of the model with property substitutions applied and and versions declared in parent POMs or BOMs copied into the model.
+The `gradle-maven-transform` plugin uses the [Maven ModelBuilder API](https://maven.apache.org/ref/3.5.2/maven-model-builder/apidocs/org/apache/maven/model/building/ModelBuilder.html) to read `pom.xml` files and generate an [Effective POM](http://maven.apache.org/plugins/maven-help-plugin/usage.html#The_help:effective-pom_Goal) for each which are then passed to the [Transformers](https://github.com/uklance/gradle-maven-transform/blob/master/plugin/src/main/groovy/com/lazan/maven/transform/Transformer.java) specified in the Gradle build. The `Effective POM` is a "denormalized" view of the model with property substitutions applied and any versions inherited from parent POMs or BOMs are explicitly declared in each [Model](https://maven.apache.org/ref/3.5.2/maven-model/apidocs/org/apache/maven/model/Model.html).
 
 ## Is there an example?
 
