@@ -23,11 +23,15 @@ public class DependencyAggregatorImpl implements DependencyAggregator {
 	public DependencyAggregatorImpl(ProjectsContext projectsContext) {
 		Map<String, Set<String>> tempGroupVersions = new LinkedHashMap<>();
 		Map<List<String>, Set<String>> tempGroupArtifactVersions = new LinkedHashMap<>();
+		Map<String, Set<String>> groupArtifacts = new LinkedHashMap<>();
 		
 		for (Model project : projectsContext.getProjects()) {
 			for (Dependency dep : project.getDependencies()) {
-				multiMapAdd(tempGroupVersions, dep.getGroupId(), dep.getVersion());
-				multiMapAdd(tempGroupArtifactVersions, Arrays.asList(dep.getGroupId(), dep.getArtifactId()), dep.getVersion());
+				if (!projectsContext.isProject(dep)) {
+					multiMapAdd(tempGroupVersions, dep.getGroupId(), dep.getVersion());
+					multiMapAdd(tempGroupArtifactVersions, Arrays.asList(dep.getGroupId(), dep.getArtifactId()), dep.getVersion());
+					multiMapAdd(groupArtifacts, dep.getGroupId(), dep.getArtifactId());
+				}
 			}
 		}
 		
@@ -35,8 +39,11 @@ public class DependencyAggregatorImpl implements DependencyAggregator {
 		groupArtifactVersions = new LinkedHashMap<>();
 		
 		for (Map.Entry<String, Set<String>> entry : tempGroupVersions.entrySet()) {
+			String groupId = entry.getKey();
 			Set<String> versions = entry.getValue();
-			if (versions.size() == 1) {
+			Set<String> uniqueArtifacts = groupArtifacts.get(groupId);
+			if (versions.size() == 1 && uniqueArtifacts.size() > 1) {
+				// we found a groupId with more than one artifactId but a common version for everything. Use the groupId for variableName
 				groupVersions.put(entry.getKey(), versions.iterator().next());
 			}
 		}
@@ -45,6 +52,7 @@ public class DependencyAggregatorImpl implements DependencyAggregator {
 			Set<String> versions = entry.getValue();
 			String groupId = key.get(0);
 			if (versions.size() == 1 && !groupVersions.containsKey(groupId)) {
+				// artifactId has a common version
 				groupArtifactVersions.put(key, versions.iterator().next());
 			}
 		}
