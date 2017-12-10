@@ -6,9 +6,6 @@ import org.gradle.api.Task
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.bundling.Jar
 
-/**
- * Created by Lance on 11/11/2017.
- */
 class MavenTransformPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
@@ -17,15 +14,15 @@ class MavenTransformPlugin implements Plugin<Project> {
 			
 			Task mavenTransform = tasks.create('mavenTransform', MavenTransform.class)
 			
-			Task jar = tasks.create('jar', Jar) {
+			Task mavenTransformJar = tasks.create('mavenTransformJar', Jar) {
 				dependsOn mavenTransform
 				from mavenTransform
 			}
 			
-			assemble.dependsOn jar
+			assemble.dependsOn mavenTransformJar
 			
 			artifacts {
-				'default' file: jar.archivePath, builtBy: jar
+				'default' mavenTransformJar
 			}
 		}
     }
