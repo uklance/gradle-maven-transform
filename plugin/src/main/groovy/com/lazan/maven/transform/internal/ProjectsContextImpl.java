@@ -78,4 +78,18 @@ public class ProjectsContextImpl implements ProjectsContext {
     	}
     	return transformContext;
     }
+    
+    @Override
+    public Object getTransformContext(String name) {
+    	Map<String, Object> contextMap = getTransformContext();
+    	if (!contextMap.containsKey(name)) {
+    		throw new IllegalArgumentException("Invalid transform context name " + name);
+    	}
+    	return contextMap.get(name);
+    }
+
+    @Override
+    public <T> T getTransformContext(String name, Class<T> type) {
+    	return type.cast(getTransformContext(name));
+    }
 }

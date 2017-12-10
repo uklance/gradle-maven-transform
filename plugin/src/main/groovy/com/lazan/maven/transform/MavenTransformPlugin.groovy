@@ -22,7 +22,7 @@ class MavenTransformPlugin implements Plugin<Project> {
 			assemble.dependsOn mavenTransformJar
 			
 			artifacts {
-				'default' mavenTransformJar
+				'default' file: mavenTransformJar.archivePath, builtBy: mavenTransformJar
 			}
 		}
     }

@@ -1,6 +1,14 @@
 version = file('../../version.txt').text.trim()
-
+buildscript {
+	repositories {
+		maven { url "https://plugins.gradle.org/m2/" }
+	}
+	dependencies {
+		classpath "com.netflix.nebula:nebula-dependency-recommender:5.0.0"
+	}
+}
 allprojects {
+	apply plugin: "nebula.dependency-recommender"
 	repositories {
 		mavenCentral()
 	}
@@ -17,7 +25,10 @@ ext {
 	    'project0', 'project1', 'project2', 'project3', 'project4',
 	    'project5', 'project6', 'project7', 'project8', 'project9'
 	]
+
 }
+File rootScript = zipTree(mavenScripts).filter { it.name == 'root-project.gradle' }.singleFile
+apply from: rootScript
 
 mavenProjects.each { projectName ->
 	project(":$projectName") {
@@ -26,4 +37,8 @@ mavenProjects.each { projectName ->
 		File projectScript = zipTree(mavenScripts).filter { it.name == "${projectName}.gradle" }.singleFile
 		apply from: projectScript
 	}
+}
+task build {
+	dependsOn gradle.includedBuilds*.task(':build')
+	dependsOn subprojects*.tasks*.getByName('build')
 }

@@ -16,7 +16,7 @@ import com.lazan.maven.transform.Transformer;
 
 public class ProjectTransformModelImpl implements ProjectTransformModel {
     private final Project project;
-    private Function<Model, CharSequence> outputPathFunction;
+    private Function<ProjectContext, CharSequence> outputPathFunction;
     private List<Transformer> transformers = new ArrayList<>();
     private Map<String, Function<ProjectContext, Object>> contextFunctions = new LinkedHashMap<>();
 
@@ -25,7 +25,7 @@ public class ProjectTransformModelImpl implements ProjectTransformModel {
     }
 
     @Override
-    public void outputPath(Function<Model, CharSequence> outputPathFunction) {
+    public void outputPath(Function<ProjectContext, CharSequence> outputPathFunction) {
         this.outputPathFunction = outputPathFunction;
     }
 
@@ -44,7 +44,7 @@ public class ProjectTransformModelImpl implements ProjectTransformModel {
         contextFunctions.put(contextKey, contextFunction);
     }
 
-    public Function<Model, CharSequence> getOutputPathFunction() {
+    public Function<ProjectContext, CharSequence> getOutputPathFunction() {
         return outputPathFunction;
     }
 

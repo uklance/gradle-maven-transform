@@ -18,4 +18,6 @@ public interface ProjectContext {
     String getGav();
     ProjectsContext getProjectsContext();
     Map<String, Object> getTransformContext();
+    <T> T getTransformContext(String name, Class<T> type);
+    Object getTransformContext(String name);
 }

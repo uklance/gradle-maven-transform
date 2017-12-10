@@ -164,7 +164,7 @@ public class MavenTransform extends DefaultTask {
 	protected void applyProjectTransforms(ProjectsContext projectsContext, ClassLoader transformClassLoader, AtomicReference<Map<String, Object>> transformContextReference) throws Exception {
 		for (ProjectContext projectContext : projectsContext.getProjectContexts()) {
             for (ProjectTransformModelImpl model : projectTransformModels) {
-                String path = model.getOutputPathFunction().apply(projectContext.getProject()).toString();
+                String path = model.getOutputPathFunction().apply(projectContext).toString();
                 File outFile = new File(outputDirectory, path);
                 Map<String, Object> transformContext = new LinkedHashMap<>(defaultProjectTransformerContext(projectContext));
                 for (Map.Entry<String, Function<ProjectContext, Object>> entry : model.getContextFunctions().entrySet()) {

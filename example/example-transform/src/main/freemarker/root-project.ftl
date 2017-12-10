@@ -1,7 +1,7 @@
-ext {
-	versions = [
+dependencyRecommendations {
+   map recommendations: [
 <#list dependencyAggregator.aggregatedDependencies as aggDep>
-		${aggDep.variableName}: '${aggDep.version}'<#if aggDep?has_next>,</#if>
+		'${aggDep.groupId}:${aggDep.artifactId}': '${aggDep.version}'<#if aggDep?has_next>,</#if>
 </#list>
-	]
+   ]
 }

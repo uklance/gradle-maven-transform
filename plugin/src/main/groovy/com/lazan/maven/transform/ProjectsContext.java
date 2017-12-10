@@ -16,4 +16,6 @@ public interface ProjectsContext {
     Model getProject(Dependency dependency);
     Collection<Model> getProjects();
     Map<String, Object> getTransformContext();
+    <T> T getTransformContext(String name, Class<T> type);
+    Object getTransformContext(String name);    
 }

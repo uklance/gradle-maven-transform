@@ -30,7 +30,73 @@ mavenTransform {
 	}
 
 	projectTransform {
-		outputPath { context -> "${context.artifactId}.gradle" }
+		outputPath { projectContext -> "${projectContext.artifactId}.gradle" }
 		freemarkerTransform "subproject.ftl"
+		context 'dependencyUtil', { projectContext ->
+			new DependencyUtil(projectContext)
+		}
+	}
+}
+
+import com.lazan.maven.transform.*
+
+class DependencyUtil {
+	private static final Map<String, String> SCOPE_MAP = [
+		compile: 'compile',
+		runtime: 'runtime',
+		provided: 'compileOnly',
+		test: 'testCompile'
+	]
+	private final ProjectContext projectContext
+	private final ProjectsContext projectsContext
+	
+	DependencyUtil(ProjectContext projectContext) {
+		this.projectContext = projectContext
+		this.projectsContext = projectContext.projectsContext
+	}
+	
+	String getConfiguration(org.apache.maven.model.Dependency dep) {
+		String scope = dep.scope ?: 'compile'
+		String configuration = SCOPE_MAP[scope]
+		if (!configuration) {
+			throw new UnsupportedOperationException("${dep.groupId}:${dep.artifactId}:${dep.version} scope=$scope not supported")
+		}
+		return configuration
+	}
+	
+	String getNotation(org.apache.maven.model.Dependency dep) {
+		validate(dep)
+		if (projectsContext.isProject(dep)) {
+			return getProjectNotation(dep)
+		} else {
+			return getExternalNotation(dep)
+		}
+	}
+	
+	protected String getProjectNotation(org.apache.maven.model.Dependency dep) {
+		String projectPath = projectsContext.getProjectContext(dep).projectPath
+		return "project('$projectPath')"
+	}
+	
+	protected String getExternalNotation(org.apache.maven.model.Dependency dep) {
+		DependencyAggregator aggregator = projectContext.getTransformContext('dependencyAggregator', DependencyAggregator)
+		boolean isAggregated = aggregator.isAggregatedDependency(dep.groupId, dep.artifactId)
+		if (isAggregated) {
+			return "'${dep.groupId}:${dep.artifactId}'"
+		} else {
+			return "'${dep.groupId}:${dep.artifactId}:${dep.version}'"
+		}
+	}
+
+	protected void validate(org.apache.maven.model.Dependency dep) {
+		['classifier', 'optional', 'systemPath'].each {
+			def value = dep[it]
+			if (value != null) {
+				throw new UnsupportedOperationException("${dep.groupId}:${dep.artifactId}:${dep.version} $it=$value not supported")
+			}
+		}
+		String type = dep.type ?: 'jar'
+		if (type != 'jar') throw new UnsupportedOperationException("${dep.groupId}:${dep.artifactId}:${dep.version} type=$type not supported")
+		if (dep.exclusions) throw new UnsupportedOperationException("${dep.groupId}:${dep.artifactId}:${dep.version} exclusions not supported (TODO)")
 	}
 }
